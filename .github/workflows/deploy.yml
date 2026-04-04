@@ -1,0 +1,180 @@
+name: Deploy Family Reunion to VPS
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-family-reunion
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Validate required secrets
+        env:
+          VPS_HOST: ${{ secrets.VPS_HOST }}
+          VPS_USER: ${{ secrets.VPS_USER }}
+          VPS_PORT: ${{ secrets.VPS_PORT }}
+          VPS_SSH_KEY: ${{ secrets.VPS_SSH_KEY }}
+          VPS_APP_PATH: ${{ secrets.VPS_APP_PATH }}
+          VPS_APP_PORT: ${{ secrets.VPS_APP_PORT }}
+          VPS_GIT_REPO: ${{ secrets.VPS_GIT_REPO }}
+        run: |
+          set -euo pipefail
+          HOST="${VPS_HOST:-}"
+          USER="${VPS_USER:-}"
+          PORT="${VPS_PORT:-22}"
+          SSH_KEY="${VPS_SSH_KEY:-}"
+          APP_PATH="${VPS_APP_PATH:-/var/www/familyreunion}"
+          APP_PORT="${VPS_APP_PORT:-3205}"
+          GIT_REPO="${VPS_GIT_REPO:-git@github.com:todrod/familyreunion.git}"
+
+          [ -n "$HOST" ] || { echo "Missing secret: VPS_HOST"; exit 1; }
+          [ -n "$USER" ] || { echo "Missing secret: VPS_USER"; exit 1; }
+          [ -n "$SSH_KEY" ] || { echo "Missing secret: VPS_SSH_KEY"; exit 1; }
+
+          case "$PORT" in ''|*[!0-9]*) echo "Invalid VPS_PORT"; exit 1 ;; esac
+          case "$APP_PORT" in ''|*[!0-9]*) echo "Invalid VPS_APP_PORT"; exit 1 ;; esac
+
+          printf '%s\n' "$SSH_KEY" | head -n 1 | grep -q "BEGIN OPENSSH PRIVATE KEY" || {
+            echo "Invalid VPS_SSH_KEY format"
+            exit 1
+          }
+
+          echo "DEPLOY_HOST=$HOST" >> "$GITHUB_ENV"
+          echo "DEPLOY_USER=$USER" >> "$GITHUB_ENV"
+          echo "DEPLOY_PORT=$PORT" >> "$GITHUB_ENV"
+          echo "DEPLOY_APP_PATH=$APP_PATH" >> "$GITHUB_ENV"
+          echo "DEPLOY_APP_PORT=$APP_PORT" >> "$GITHUB_ENV"
+          echo "DEPLOY_APP_NAME=family-reunion" >> "$GITHUB_ENV"
+          echo "DEPLOY_GIT_REPO=$GIT_REPO" >> "$GITHUB_ENV"
+
+      - name: Prepare SSH
+        env:
+          VPS_SSH_KEY: ${{ secrets.VPS_SSH_KEY }}
+          VPS_KNOWN_HOSTS: ${{ secrets.VPS_KNOWN_HOSTS }}
+        run: |
+          set -euo pipefail
+          mkdir -p ~/.ssh
+          chmod 700 ~/.ssh
+          : > ~/.ssh/known_hosts
+          printf '%s\n' "$VPS_SSH_KEY" | tr -d '\r' > ~/.ssh/vps_key
+          chmod 600 ~/.ssh/vps_key
+          ssh-keygen -y -f ~/.ssh/vps_key > ~/.ssh/vps_key.pub 2>/dev/null || {
+            echo "Invalid private key in VPS_SSH_KEY"
+            exit 1
+          }
+          echo "Using deploy key fingerprint:"
+          ssh-keygen -lf ~/.ssh/vps_key.pub
+
+          if [ -n "${VPS_KNOWN_HOSTS:-}" ]; then
+            printf '%s\n' "$VPS_KNOWN_HOSTS" > ~/.ssh/known_hosts
+          else
+            for i in 1 2 3 4 5; do
+              if ssh-keyscan -T 15 -t ed25519,rsa -p "$DEPLOY_PORT" -H "$DEPLOY_HOST" >> ~/.ssh/known_hosts 2>/dev/null; then
+                break
+              fi
+              if [ "$i" -eq 5 ]; then
+                echo "Failed to fetch SSH host key from $DEPLOY_HOST:$DEPLOY_PORT"
+                exit 1
+              fi
+              sleep 3
+            done
+          fi
+
+          [ -s ~/.ssh/known_hosts ] || { echo "known_hosts is empty"; exit 1; }
+          chmod 644 ~/.ssh/known_hosts
+
+      - name: Preflight SSH connectivity
+        run: |
+          set -euo pipefail
+          echo "Preflight target: $DEPLOY_USER@$DEPLOY_HOST:$DEPLOY_PORT"
+
+          check_port() {
+            local host="$1" port="$2" ok=1
+            for i in 1 2 3 4 5; do
+              if nc -z -w 5 "$host" "$port" >/dev/null 2>&1; then ok=0; break; fi
+              echo "TCP check attempt $i failed for $host:$port; retrying..."
+              sleep 3
+            done
+            return "$ok"
+          }
+
+          if ! check_port "$DEPLOY_HOST" "$DEPLOY_PORT"; then
+            if [ "$DEPLOY_PORT" != "22" ] && check_port "$DEPLOY_HOST" "22"; then
+              echo "Falling back to port 22"
+              echo "DEPLOY_PORT=22" >> "$GITHUB_ENV"
+              DEPLOY_PORT="22"
+              ssh-keyscan -T 15 -t ed25519,rsa -p 22 -H "$DEPLOY_HOST" >> ~/.ssh/known_hosts 2>/dev/null || true
+            else
+              echo "Unable to reach $DEPLOY_HOST on SSH port $DEPLOY_PORT (or fallback 22)."
+              exit 1
+            fi
+          fi
+
+          for i in 1 2 3; do
+            if ssh -i ~/.ssh/vps_key -p "$DEPLOY_PORT" \
+              -o BatchMode=yes -o ConnectTimeout=15 -o ConnectionAttempts=1 \
+              -o IdentitiesOnly=yes -o PreferredAuthentications=publickey \
+              -o StrictHostKeyChecking=yes \
+              "$DEPLOY_USER@$DEPLOY_HOST" "echo SSH preflight OK"; then
+              exit 0
+            fi
+            echo "SSH preflight attempt $i failed; retrying..."
+            sleep 4
+          done
+          echo "SSH preflight failed after retries"
+          exit 1
+
+      - name: Deploy on VPS
+        run: |
+          set -euo pipefail
+          ssh -i ~/.ssh/vps_key -p "$DEPLOY_PORT" \
+            -o BatchMode=yes -o IdentitiesOnly=yes \
+            -o PreferredAuthentications=publickey -o StrictHostKeyChecking=yes \
+            "$DEPLOY_USER@$DEPLOY_HOST" \
+            "bash -s -- '$DEPLOY_APP_PATH' '$DEPLOY_APP_PORT' '$DEPLOY_APP_NAME' '$DEPLOY_GIT_REPO'" <<'EOF_REMOTE'
+          set -euxo pipefail
+          DEPLOY_APP_PATH="$1"
+          DEPLOY_APP_PORT="$2"
+          DEPLOY_APP_NAME="$3"
+          DEPLOY_GIT_REPO="$4"
+
+          mkdir -p "$DEPLOY_APP_PATH"
+          if [ ! -d "$DEPLOY_APP_PATH/.git" ]; then
+            git clone "$DEPLOY_GIT_REPO" "$DEPLOY_APP_PATH"
+          fi
+          cd "$DEPLOY_APP_PATH"
+
+          git checkout main
+          git pull --ff-only origin main
+
+          [ -f .env.local ] || { echo "ERROR: .env.local missing at $DEPLOY_APP_PATH — add DB credentials before deploying"; exit 1; }
+
+          rm -rf .next
+          npm ci --no-audit --no-fund
+          npm run build
+
+          pm2 delete "$DEPLOY_APP_NAME" >/dev/null 2>&1 || true
+          pm2 start /usr/bin/npm --name "$DEPLOY_APP_NAME" --cwd "$DEPLOY_APP_PATH" -- run start -- --port "$DEPLOY_APP_PORT"
+          pm2 save
+
+          for i in 1 2 3 4 5; do
+            if curl -fsS "http://127.0.0.1:$DEPLOY_APP_PORT" >/dev/null; then
+              echo "Deploy successful"
+              exit 0
+            fi
+            echo "Health check attempt $i failed, retrying..."
+            sleep 2
+          done
+
+          echo "Health check failed on 127.0.0.1:$DEPLOY_APP_PORT"
+          pm2 status || true
+          pm2 logs "$DEPLOY_APP_NAME" --lines 50 --nostream || true
+          exit 1
+          EOF_REMOTE
