@@ -9,11 +9,16 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
 
   const { id } = await params;
   const body = await req.json();
-  const { family_name, contact_name, rooms_requested, nights, attendees, notes } = body;
+  const { family_name, contact_name, rooms_requested, nights, hotel_preference, has_pets, room_type, rsvp_status, attendees, notes } = body;
 
   await pool.query(
-    `UPDATE families SET family_name=?, contact_name=?, rooms_requested=?, nights=?, attendees=?, notes=? WHERE id=?`,
-    [family_name, contact_name, Number(rooms_requested), Number(nights), attendees, notes, id]
+    `UPDATE families SET family_name=?, contact_name=?, rooms_requested=?, nights=?,
+     hotel_preference=?, has_pets=?, room_type=?, rsvp_status=?, attendees=?, notes=? WHERE id=?`,
+    [
+      family_name, contact_name, Number(rooms_requested), Number(nights),
+      hotel_preference || "", has_pets ? 1 : 0, room_type || "",
+      rsvp_status || "interested", attendees, notes, id,
+    ]
   );
 
   const [rows] = await pool.query("SELECT * FROM families WHERE id = ?", [id]);
