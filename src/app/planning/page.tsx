@@ -12,19 +12,27 @@ import { Separator } from "@/components/ui/separator";
 import {
   Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
 } from "@/components/ui/table";
+import Image from "next/image";
+import Link from "next/link";
 import {
   Users, BedDouble, CalendarDays, MapPin, Clock,
   Minus, Plus, X, Edit2, Trash2, Check, Download, PawPrint,
+  Phone, ExternalLink, UtensilsCrossed, Waves,
 } from "lucide-react";
+import { SiteNav } from "@/components/site-nav";
 
 /* ─── Reunion constants ─────────────────────────────────────────── */
 const REUNION = {
-  name: "Family Reunion 2026",
-  dates: "TBD — Summer 2026",
-  location: "Tinton Falls, NJ",
-  hotelDeadline: "TBD",
-  hotels: ["Radisson in Freehold", "Colts Neck Hotel", "The Hawthorne"],
-  targetRooms: 25,
+  name: "14th Aversa Family Reunion",
+  dates: "July 17–19, 2026 (Check-in Jul 17 · Checkout Jul 19)",
+  location: "300 Spring Valley Rd, Old Bridge, NJ 08857",
+  hotelDeadline: "June 17, 2026",
+  hotels: ["Hampton Inn Old Bridge"],
+  targetRooms: 20,
+  bookingUrl: "https://www.hilton.com/en/book/reservation/deeplink/?ctyhocn=EWROBHX&groupCode=CHHMAR&arrivaldate=2026-07-17&departuredate=2026-07-19&cid=OM,WW,HILTONLINK,EN,DirectLink&fromId=HILTONLINKDIRECT",
+  mapsUrl: "https://www.google.com/maps/search/?api=1&query=Hampton+Inn+Old+Bridge+300+Spring+Valley+Road+Old+Bridge+NJ+08857",
+  phone: "732-851-0300",
+  checkinDate: new Date("2026-07-17T16:00:00"),
 };
 
 const HOTELS = ["No preference", ...REUNION.hotels];
@@ -47,21 +55,22 @@ interface Family {
   room_type: string;
   rsvp_status: string;
   attendees: string;
+  phone: string;
+  room_number: string;
   notes: string;
   created_at: string;
 }
 
 const EMPTY_FORM = {
   family_name: "",
-  contact_name: "",
   rooms_requested: 1,
-  nights: 3,
-  hotel_preference: "No preference",
+  nights: 2,
   has_pets: false,
   room_type: "No preference",
   rsvp_status: "interested",
-  attendees: [] as string[],
-  attendee_input: "",
+  group_size: 1,
+  phone: "",
+  room_number: "",
   notes: "",
 };
 
@@ -148,6 +157,47 @@ function RsvpBadge({ status }: { status: string }) {
   return <span className={`inline-flex items-center rounded-full border px-2 py-0.5 text-xs font-medium ${s.color}`}>{s.label}</span>;
 }
 
+/* ─── Countdown ──────────────────────────────────────────────────── */
+function Countdown() {
+  const [timeLeft, setTimeLeft] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
+
+  useEffect(() => {
+    function calc() {
+      const diff = REUNION.checkinDate.getTime() - Date.now();
+      if (diff <= 0) return setTimeLeft({ days: 0, hours: 0, minutes: 0, seconds: 0 });
+      setTimeLeft({
+        days: Math.floor(diff / 86400000),
+        hours: Math.floor((diff % 86400000) / 3600000),
+        minutes: Math.floor((diff % 3600000) / 60000),
+        seconds: Math.floor((diff % 60000) / 1000),
+      });
+    }
+    calc();
+    const id = setInterval(calc, 1000);
+    return () => clearInterval(id);
+  }, []);
+
+  const units = [
+    { label: "Days", value: timeLeft.days },
+    { label: "Hours", value: timeLeft.hours },
+    { label: "Mins", value: timeLeft.minutes },
+    { label: "Secs", value: timeLeft.seconds },
+  ];
+
+  return (
+    <div className="flex items-center gap-3 sm:gap-4">
+      {units.map(({ label, value }) => (
+        <div key={label} className="flex flex-col items-center">
+          <span className="text-2xl sm:text-3xl font-bold tabular-nums text-[#d4a853]">
+            {String(value).padStart(2, "0")}
+          </span>
+          <span className="text-[10px] uppercase tracking-widest text-[#a0886a]">{label}</span>
+        </div>
+      ))}
+    </div>
+  );
+}
+
 /* ─── Page ───────────────────────────────────────────────────────── */
 export default function PlanningPage() {
   const [families, setFamilies] = useState<Family[]>([]);
@@ -158,6 +208,7 @@ export default function PlanningPage() {
   const [editForm, setEditForm] = useState<Partial<Family>>({});
   const [editChips, setEditChips] = useState<string[]>([]);
   const [editChipInput, setEditChipInput] = useState("");
+  const [myId, setMyId] = useState<number | null>(null);
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   const fetchFamilies = useCallback(async () => {
@@ -171,9 +222,34 @@ export default function PlanningPage() {
     return () => { if (intervalRef.current) clearInterval(intervalRef.current); };
   }, [fetchFamilies]);
 
+  // Restore saved identity from localStorage
+  useEffect(() => {
+    const stored = localStorage.getItem("reunion_family_id");
+    if (stored) setMyId(parseInt(stored));
+  }, []);
+
+  // Pre-fill form once families load and we know who we are
+  useEffect(() => {
+    if (!myId || families.length === 0) return;
+    const mine = families.find((f) => f.id === myId);
+    if (!mine) return;
+    setForm({
+      family_name: mine.family_name,
+      rooms_requested: mine.rooms_requested,
+      nights: mine.nights,
+      has_pets: mine.has_pets === 1,
+      room_type: mine.room_type || "No preference",
+      rsvp_status: mine.rsvp_status,
+      group_size: parseInt(mine.attendees) || 1,
+      phone: mine.phone || "",
+      room_number: mine.room_number || "",
+      notes: mine.notes || "",
+    });
+  }, [myId, families]);
+
   /* Derived stats */
   const totalRooms  = families.reduce((s, f) => s + f.rooms_requested, 0);
-  const totalPeople = families.reduce((s, f) => s + f.attendees.split(",").filter(Boolean).length, 0);
+  const totalPeople = families.reduce((s, f) => s + (parseInt(f.attendees) || 0), 0);
   const roomPct     = Math.min(100, Math.round((totalRooms / REUNION.targetRooms) * 100));
   const withPets    = families.filter((f) => f.has_pets).length;
 
@@ -184,26 +260,54 @@ export default function PlanningPage() {
     groups: families.filter((f) => f.hotel_preference === h).length,
   }));
 
+  const payload = {
+    ...form,
+    contact_name: form.family_name,
+    hotel_preference: REUNION.hotels[0],
+    attendees: String(form.group_size),
+    has_pets: form.has_pets ? 1 : 0,
+  };
+
   async function handleSubmit(e: React.SyntheticEvent<HTMLFormElement>) {
     e.preventDefault();
-    if (!form.family_name || !form.contact_name) return;
+    if (!form.family_name) return;
     setSubmitting(true);
-    const res = await fetch("/api/families", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        ...form,
-        attendees: form.attendees.join(", "),
-        has_pets: form.has_pets ? 1 : 0,
-      }),
-    });
-    setSubmitting(false);
-    if (res.ok) {
-      const newFamily = await res.json();
-      setFamilies((prev) => [...prev, newFamily]);
-      setForm(EMPTY_FORM);
-      toast.success(`${form.family_name} added!`, { description: "You're on the list. See you there!" });
+
+    if (myId) {
+      // Update existing entry
+      const res = await fetch(`/api/families/${myId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+      setSubmitting(false);
+      if (res.ok) {
+        const updated = await res.json();
+        setFamilies((prev) => prev.map((f) => (f.id === myId ? updated : f)));
+        toast.success("Your info has been updated!");
+      }
+    } else {
+      // New entry
+      const res = await fetch("/api/families", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+      setSubmitting(false);
+      if (res.ok) {
+        const newFamily = await res.json();
+        setFamilies((prev) => [...prev, newFamily]);
+        localStorage.setItem("reunion_family_id", String(newFamily.id));
+        setMyId(newFamily.id);
+        toast.success(`${form.family_name} added!`, { description: "You're on the list. See you there!" });
+      }
     }
+  }
+
+  function handleForgetMe() {
+    localStorage.removeItem("reunion_family_id");
+    setMyId(null);
+    setForm(EMPTY_FORM);
   }
 
   async function handleDelete(id: number, name: string) {
@@ -215,7 +319,7 @@ export default function PlanningPage() {
   function startEdit(family: Family) {
     setEditingId(family.id);
     setEditForm({ ...family });
-    setEditChips(family.attendees.split(",").map((s) => s.trim()).filter(Boolean));
+    setEditChips([]);
     setEditChipInput("");
   }
 
@@ -235,63 +339,102 @@ export default function PlanningPage() {
   return (
     <div className="min-h-screen bg-background">
 
-      {/* ── Nav ── */}
-      <header className="sticky top-0 z-20 border-b border-border/60 bg-card/80 backdrop-blur-sm">
-        <div className="mx-auto flex max-w-5xl items-center justify-between px-4 py-3">
-          <div className="flex items-center gap-2.5">
-            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-[#d4a853]/15 text-[#d4a853]">
-              <svg viewBox="0 0 20 20" fill="none" className="h-4 w-4" aria-hidden>
-                <path d="M10 2C6.5 2 4 4.5 4 7.5c0 2.5 1.5 4.5 3.5 5.5V16l2.5-1.5L12.5 16v-3C14.5 12 16 10 16 7.5 16 4.5 13.5 2 10 2Z" stroke="#d4a853" strokeWidth="1.4" strokeLinejoin="round"/>
-              </svg>
-            </div>
-            <div>
-              <span className="text-sm font-semibold" style={{ fontFamily: "var(--font-playfair)" }}>Family Reunion</span>
-              <span className="ml-1.5 text-xs text-muted-foreground">· Rodriguez · Aversa</span>
-            </div>
-          </div>
-          <div className="flex items-center gap-3">
-            {lastUpdated && (
-              <span className="hidden text-xs text-muted-foreground sm:block">
-                Live · {lastUpdated.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
-              </span>
-            )}
-            <a
-              href="/api/families/export"
-              className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-card px-3 py-1.5 text-xs text-muted-foreground hover:border-[#d4a853]/40 hover:text-foreground transition-colors"
-            >
-              <Download className="h-3.5 w-3.5" /> Export CSV
-            </a>
-          </div>
+      <SiteNav extraRight={
+        <div className="flex items-center gap-2">
+          {lastUpdated && (
+            <span className="hidden text-xs text-muted-foreground sm:block">
+              Live · {lastUpdated.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+            </span>
+          )}
+          <a
+            href="/api/families/export"
+            className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-card px-3 py-1.5 text-xs text-muted-foreground hover:border-[#d4a853]/40 hover:text-foreground transition-colors"
+          >
+            <Download className="h-3.5 w-3.5" /> Export CSV
+          </a>
         </div>
-      </header>
+      } />
 
       <div className="mx-auto max-w-5xl space-y-8 px-4 py-8">
 
         {/* ── Hero ── */}
         <div className="relative overflow-hidden rounded-2xl border border-[#d4a853]/20 bg-gradient-to-br from-[#261a0c] to-[#1c1208] px-6 py-8 sm:px-10 sm:py-10">
           <div className="pointer-events-none absolute right-0 top-0 h-64 w-64 rounded-full bg-[#d4a853]/8 blur-[80px]" />
-          <div className="relative">
-            <p className="text-xs uppercase tracking-[0.2em] text-[#a0886a]">Planning Hub</p>
-            <h1 className="mt-1 text-3xl text-[#f5ede0] sm:text-4xl" style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic" }}>
-              {REUNION.name}
-            </h1>
-            <div className="mt-4 flex flex-wrap items-center gap-4 text-sm">
-              <div className="flex items-center gap-1.5 text-[#c4a97d]">
-                <CalendarDays className="h-4 w-4 text-[#d4a853]" />{REUNION.dates}
+          <div className="relative flex flex-col gap-6 sm:flex-row sm:items-start sm:justify-between">
+            <div>
+              <p className="text-xs uppercase tracking-[0.2em] text-[#a0886a]">Planning Hub</p>
+              <h1 className="mt-1 text-3xl text-[#f5ede0] sm:text-4xl" style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic" }}>
+                {REUNION.name}
+              </h1>
+              <div className="mt-4 flex flex-col gap-2 text-sm">
+                <div className="flex items-center gap-1.5 text-[#c4a97d]">
+                  <CalendarDays className="h-4 w-4 shrink-0 text-[#d4a853]" />{REUNION.dates}
+                </div>
+                <a href={REUNION.mapsUrl} target="_blank" rel="noopener noreferrer"
+                  className="flex items-center gap-1.5 text-[#c4a97d] hover:text-[#d4a853] transition-colors">
+                  <MapPin className="h-4 w-4 shrink-0 text-[#d4a853]" />{REUNION.location}
+                </a>
+                <div className="flex items-center gap-1.5 text-[#a0886a]">
+                  <Phone className="h-4 w-4 shrink-0 text-[#d4a853]" />{REUNION.phone}
+                </div>
+                <div className="flex items-center gap-1.5 text-[#a0886a]">
+                  <Clock className="h-4 w-4 shrink-0 text-[#d4a853]" />Block cancellation deadline: <span className="text-[#c8553d] font-medium">{REUNION.hotelDeadline}</span>
+                </div>
               </div>
-              <div className="flex items-center gap-1.5 text-[#c4a97d]">
-                <MapPin className="h-4 w-4 text-[#d4a853]" />{REUNION.location}
-              </div>
-              <div className="flex items-center gap-1.5 text-sm text-[#a0886a]">
-                <Clock className="h-4 w-4" /><span>Date TBD — check back soon</span>
+              <div className="mt-5">
+                <a href={REUNION.bookingUrl} target="_blank" rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 rounded-lg bg-[#d4a853] px-4 py-2 text-sm font-medium text-[#1c1208] hover:bg-[#c8553d] hover:text-[#f5ede0] transition-colors">
+                  <ExternalLink className="h-4 w-4" /> Book Your Room
+                </a>
               </div>
             </div>
-            <div className="mt-5 flex flex-wrap gap-2">
-              {REUNION.hotels.map((h) => (
-                <span key={h} className="rounded-full border border-[#d4a853]/25 bg-[#d4a853]/10 px-3 py-1 text-xs text-[#c4a97d]">{h}</span>
-              ))}
+            <div className="flex flex-col items-start gap-4 sm:items-end">
+              <Image src="/reunion-crest.webp" alt="Aversa Family Reunion crest" width={100} height={100} className="rounded-full opacity-90" />
+              <div className="flex flex-col items-start gap-1 sm:items-end">
+                <p className="text-xs uppercase tracking-widest text-[#a0886a]">Countdown to Check-in</p>
+                <Countdown />
+              </div>
             </div>
           </div>
+        </div>
+
+        {/* ── Hotel info ── */}
+        <div className="grid gap-4 sm:grid-cols-2">
+          <Card className="border-[#d4a853]/20 bg-card">
+            <CardHeader className="pb-2">
+              <CardTitle className="flex items-center gap-2 text-base" style={{ fontFamily: "var(--font-playfair)" }}>
+                <BedDouble className="h-4 w-4 text-[#d4a853]" /> Room Rates
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3 text-sm">
+              <div className="flex items-center justify-between rounded-lg bg-background px-3 py-2">
+                <span className="text-muted-foreground">King Room</span>
+                <span className="font-semibold text-[#d4a853]">$229 / night</span>
+              </div>
+              <div className="flex items-center justify-between rounded-lg bg-background px-3 py-2">
+                <span className="text-muted-foreground">Two Queen Room</span>
+                <span className="font-semibold text-[#d4a853]">$239 / night</span>
+              </div>
+              <p className="text-xs text-muted-foreground">Rates apply Thu–Sat. Extended stay rates $50–60 less/night. Block of 20 rooms.</p>
+            </CardContent>
+          </Card>
+          <Card className="border-[#8b9b6e]/20 bg-card">
+            <CardHeader className="pb-2">
+              <CardTitle className="flex items-center gap-2 text-base" style={{ fontFamily: "var(--font-playfair)" }}>
+                <Waves className="h-4 w-4 text-[#8b9b6e]" /> Amenities
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-2 text-sm">
+              <div className="flex items-center gap-2 text-muted-foreground"><UtensilsCrossed className="h-4 w-4 text-[#8b9b6e]" /> Hot breakfast included</div>
+              <div className="flex items-center gap-2 text-muted-foreground"><Waves className="h-4 w-4 text-[#8b9b6e]" /> Indoor pool</div>
+              <div className="flex items-center gap-2 text-muted-foreground"><PawPrint className="h-4 w-4 text-amber-400" /> Pet-friendly ($75 one-time fee)</div>
+              <a href={REUNION.mapsUrl} target="_blank" rel="noopener noreferrer"
+                className="mt-2 flex items-center gap-2 rounded-lg border border-border px-3 py-2 text-xs text-muted-foreground hover:border-[#d4a853]/40 hover:text-foreground transition-colors">
+                <MapPin className="h-3.5 w-3.5 text-[#d4a853]" /> Get Directions · ~30 min from EWR
+                <ExternalLink className="ml-auto h-3 w-3" />
+              </a>
+            </CardContent>
+          </Card>
         </div>
 
         {/* ── Stat cards ── */}
@@ -393,7 +536,7 @@ export default function PlanningPage() {
                     <Input value={editForm.contact_name || ""} onChange={(e) => setEditForm((p) => ({ ...p, contact_name: e.target.value }))} placeholder="Contact name" className="text-sm" />
                     <div className="grid grid-cols-2 gap-3">
                       <div className="space-y-1"><Label className="text-xs">Rooms</Label><Stepper value={editForm.rooms_requested || 1} onChange={(n) => setEditForm((p) => ({ ...p, rooms_requested: n }))} /></div>
-                      <div className="space-y-1"><Label className="text-xs">Nights</Label><Stepper value={editForm.nights || 3} onChange={(n) => setEditForm((p) => ({ ...p, nights: n }))} /></div>
+                      <div className="space-y-1"><Label className="text-xs">Nights</Label><Stepper value={editForm.nights || 2} onChange={(n) => setEditForm((p) => ({ ...p, nights: n }))} /></div>
                     </div>
                     <div className="space-y-1"><Label className="text-xs">Hotel</Label><Select value={editForm.hotel_preference || "No preference"} onChange={(v) => setEditForm((p) => ({ ...p, hotel_preference: v }))} options={HOTELS} /></div>
                     <div className="space-y-1"><Label className="text-xs">Room type</Label><Select value={editForm.room_type || "No preference"} onChange={(v) => setEditForm((p) => ({ ...p, room_type: v }))} options={ROOM_TYPES} /></div>
@@ -419,8 +562,7 @@ export default function PlanningPage() {
                           <p className="font-semibold">{family.family_name}</p>
                           {family.has_pets === 1 && <PawPrint className="h-3.5 w-3.5 text-amber-400" />}
                         </div>
-                        <p className="text-xs text-muted-foreground">Contact: {family.contact_name}</p>
-                      </div>
+                        </div>
                       <div className="flex flex-col items-end gap-1">
                         <Badge className="border-[#d4a853]/30 bg-[#d4a853]/10 text-[#d4a853]">{family.rooms_requested} {family.rooms_requested === 1 ? "room" : "rooms"}</Badge>
                         <RsvpBadge status={family.rsvp_status} />
@@ -429,21 +571,14 @@ export default function PlanningPage() {
                     <Separator className="my-3" />
                     <div className="space-y-1.5 text-sm">
                       <div className="flex flex-wrap gap-x-4 gap-y-1 text-muted-foreground">
+                        {family.attendees && <span className="flex items-center gap-1"><Users className="h-3.5 w-3.5" />{family.attendees} {Number(family.attendees) === 1 ? "person" : "people"}</span>}
                         <span className="flex items-center gap-1"><CalendarDays className="h-3.5 w-3.5" />{family.nights} nights</span>
-                        {family.hotel_preference && family.hotel_preference !== "No preference" && (
-                          <span className="flex items-center gap-1"><MapPin className="h-3.5 w-3.5" />{family.hotel_preference.replace(" in Freehold", "")}</span>
-                        )}
                         {family.room_type && family.room_type !== "No preference" && (
                           <span className="flex items-center gap-1"><BedDouble className="h-3.5 w-3.5" />{family.room_type}</span>
                         )}
+                        {family.phone && <a href={`tel:${family.phone}`} className="flex items-center gap-1 hover:text-[#d4a853]"><Phone className="h-3.5 w-3.5" />{family.phone}</a>}
+                        {family.room_number && <span className="flex items-center gap-1 font-medium text-[#8b9b6e]">Room {family.room_number}</span>}
                       </div>
-                      {family.attendees && (
-                        <div className="flex flex-wrap gap-1 pt-0.5">
-                          {family.attendees.split(",").map((n) => n.trim()).filter(Boolean).map((n) => (
-                            <span key={n} className="rounded-md bg-[#d4a853]/10 px-1.5 py-0.5 text-xs text-[#d4a853]">{n}</span>
-                          ))}
-                        </div>
-                      )}
                       {family.notes && <p className="text-xs text-muted-foreground italic">{family.notes}</p>}
                     </div>
                     <div className="mt-3 flex gap-2">
@@ -464,12 +599,12 @@ export default function PlanningPage() {
                   <TableRow className="border-border hover:bg-transparent">
                     <TableHead className="text-muted-foreground">Family</TableHead>
                     <TableHead className="text-muted-foreground">Status</TableHead>
+                    <TableHead className="text-center text-muted-foreground">Group</TableHead>
                     <TableHead className="text-center text-muted-foreground">Rooms</TableHead>
                     <TableHead className="text-center text-muted-foreground">Nights</TableHead>
-                    <TableHead className="text-muted-foreground">Hotel</TableHead>
                     <TableHead className="text-muted-foreground">Room Type</TableHead>
-                    <TableHead className="text-center text-muted-foreground">Pets</TableHead>
-                    <TableHead className="text-muted-foreground">Attendees</TableHead>
+                    <TableHead className="text-muted-foreground">Phone</TableHead>
+                    <TableHead className="text-center text-muted-foreground">Room #</TableHead>
                     <TableHead className="text-muted-foreground">Notes</TableHead>
                     <TableHead />
                   </TableRow>
@@ -487,12 +622,12 @@ export default function PlanningPage() {
                       <TableRow key={family.id} className="border-border bg-[#d4a853]/5">
                         <TableCell><Input value={editForm.family_name || ""} onChange={(e) => setEditForm((p) => ({ ...p, family_name: e.target.value }))} className="h-7 text-xs" /></TableCell>
                         <TableCell><Select value={editForm.rsvp_status || "interested"} onChange={(v) => setEditForm((p) => ({ ...p, rsvp_status: v }))} options={RSVP_STATUSES.map((s) => ({ value: s.value, label: s.label }))} /></TableCell>
+                        <TableCell className="text-center"><Stepper value={parseInt(editForm.attendees || "1") || 1} onChange={(n) => setEditForm((p) => ({ ...p, attendees: String(n) }))} max={30} /></TableCell>
                         <TableCell><Stepper value={editForm.rooms_requested || 1} onChange={(n) => setEditForm((p) => ({ ...p, rooms_requested: n }))} /></TableCell>
-                        <TableCell><Stepper value={editForm.nights || 3} onChange={(n) => setEditForm((p) => ({ ...p, nights: n }))} /></TableCell>
-                        <TableCell><Select value={editForm.hotel_preference || "No preference"} onChange={(v) => setEditForm((p) => ({ ...p, hotel_preference: v }))} options={HOTELS} /></TableCell>
+                        <TableCell><Stepper value={editForm.nights || 2} onChange={(n) => setEditForm((p) => ({ ...p, nights: n }))} /></TableCell>
                         <TableCell><Select value={editForm.room_type || "No preference"} onChange={(v) => setEditForm((p) => ({ ...p, room_type: v }))} options={ROOM_TYPES} /></TableCell>
-                        <TableCell className="text-center"><input type="checkbox" checked={!!editForm.has_pets} onChange={(e) => setEditForm((p) => ({ ...p, has_pets: e.target.checked ? 1 : 0 }))} className="h-4 w-4 accent-[#d4a853]" /></TableCell>
-                        <TableCell><AttendeeInput chips={editChips} onAdd={(n) => { if (!editChips.includes(n)) setEditChips((p) => [...p, n]); setEditChipInput(""); }} onRemove={(n) => setEditChips((p) => p.filter((c) => c !== n))} inputVal={editChipInput} onInputChange={setEditChipInput} /></TableCell>
+                        <TableCell><Input value={editForm.phone || ""} onChange={(e) => setEditForm((p) => ({ ...p, phone: e.target.value }))} className="h-7 text-xs" placeholder="555-0100" /></TableCell>
+                        <TableCell><Input value={editForm.room_number || ""} onChange={(e) => setEditForm((p) => ({ ...p, room_number: e.target.value }))} className="h-7 text-xs" placeholder="214" /></TableCell>
                         <TableCell><Input value={editForm.notes || ""} onChange={(e) => setEditForm((p) => ({ ...p, notes: e.target.value }))} className="h-7 text-xs" /></TableCell>
                         <TableCell>
                           <div className="flex gap-1">
@@ -503,27 +638,17 @@ export default function PlanningPage() {
                       </TableRow>
                     ) : (
                       <TableRow key={family.id} className="border-border hover:bg-muted/30">
-                        <TableCell>
-                          <div>
-                            <div className="flex items-center gap-1.5 font-medium">
-                              {family.family_name}
-                              {family.has_pets === 1 && <PawPrint className="h-3.5 w-3.5 text-amber-400" />}
-                            </div>
-                            <p className="text-xs text-muted-foreground">{family.contact_name}</p>
-                          </div>
-                        </TableCell>
+                        <TableCell className="font-medium">{family.family_name}</TableCell>
                         <TableCell><RsvpBadge status={family.rsvp_status} /></TableCell>
+                        <TableCell className="text-center text-muted-foreground">{family.attendees || <span className="text-border">—</span>}</TableCell>
                         <TableCell className="text-center"><Badge className="border-[#d4a853]/30 bg-[#d4a853]/10 text-[#d4a853]">{family.rooms_requested}</Badge></TableCell>
                         <TableCell className="text-center text-muted-foreground">{family.nights}</TableCell>
-                        <TableCell className="text-sm text-muted-foreground">{family.hotel_preference && family.hotel_preference !== "No preference" ? family.hotel_preference.replace(" in Freehold", "") : <span className="text-border">—</span>}</TableCell>
                         <TableCell className="text-sm text-muted-foreground">{family.room_type && family.room_type !== "No preference" ? family.room_type : <span className="text-border">—</span>}</TableCell>
-                        <TableCell className="text-center">{family.has_pets === 1 ? <PawPrint className="mx-auto h-4 w-4 text-amber-400" /> : <span className="text-border">—</span>}</TableCell>
-                        <TableCell>
-                          <div className="flex flex-wrap gap-1">
-                            {family.attendees ? family.attendees.split(",").map((n) => n.trim()).filter(Boolean).map((n) => (
-                              <span key={n} className="rounded-md bg-[#d4a853]/10 px-1.5 py-0.5 text-xs text-[#d4a853]">{n}</span>
-                            )) : <span className="text-border">—</span>}
-                          </div>
+                        <TableCell className="text-sm text-muted-foreground">
+                          {family.phone ? <a href={`tel:${family.phone}`} className="hover:text-[#d4a853] transition-colors">{family.phone}</a> : <span className="text-border">—</span>}
+                        </TableCell>
+                        <TableCell className="text-center">
+                          {family.room_number ? <Badge className="border-[#8b9b6e]/30 bg-[#8b9b6e]/10 text-[#8b9b6e]">{family.room_number}</Badge> : <span className="text-xs text-muted-foreground">TBD</span>}
                         </TableCell>
                         <TableCell className="max-w-[140px] text-sm text-muted-foreground">{family.notes || <span className="text-border">—</span>}</TableCell>
                         <TableCell>
@@ -544,34 +669,45 @@ export default function PlanningPage() {
         {/* ── Intake form ── */}
         <Card className="border-border bg-card">
           <CardHeader className="pb-2">
-            <CardTitle className="text-lg" style={{ fontFamily: "var(--font-playfair)" }}>Add Your Family</CardTitle>
-            <p className="text-sm text-muted-foreground">Fill this in and you&apos;ll appear in the list instantly.</p>
+            <div className="flex items-start justify-between gap-4">
+              <div>
+                <CardTitle className="text-lg" style={{ fontFamily: "var(--font-playfair)" }}>
+                  {myId ? "Your Info" : "Add Your Family"}
+                </CardTitle>
+                <p className="text-sm text-muted-foreground">
+                  {myId ? "Update your details — changes save to the list instantly." : "Fill this in and you'll appear in the list instantly."}
+                </p>
+              </div>
+              {myId && (
+                <button onClick={handleForgetMe} className="shrink-0 text-xs text-muted-foreground hover:text-foreground underline underline-offset-2">
+                  Not you?
+                </button>
+              )}
+            </div>
           </CardHeader>
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-5">
-              <div className="grid gap-4 sm:grid-cols-2">
-                <div className="space-y-1.5">
-                  <Label htmlFor="family_name">Family Branch / Name *</Label>
-                  <Input id="family_name" required placeholder="e.g. DiNicola — Southern" value={form.family_name} onChange={(e) => setForm((p) => ({ ...p, family_name: e.target.value }))} />
-                </div>
-                <div className="space-y-1.5">
-                  <Label htmlFor="contact_name">Your Name *</Label>
-                  <Input id="contact_name" required placeholder="e.g. Carol" value={form.contact_name} onChange={(e) => setForm((p) => ({ ...p, contact_name: e.target.value }))} />
-                </div>
+              <div className="space-y-1.5">
+                <Label htmlFor="family_name">Last Name *</Label>
+                <Input id="family_name" required placeholder="e.g. DiNicola" value={form.family_name} onChange={(e) => setForm((p) => ({ ...p, family_name: e.target.value }))} />
               </div>
 
               <div className="grid gap-4 sm:grid-cols-2">
-                <div className="space-y-1.5">
-                  <Label>Hotel Preference</Label>
-                  <Select value={form.hotel_preference} onChange={(v) => setForm((p) => ({ ...p, hotel_preference: v }))} options={HOTELS} />
-                </div>
                 <div className="space-y-1.5">
                   <Label>Room Type</Label>
                   <Select value={form.room_type} onChange={(v) => setForm((p) => ({ ...p, room_type: v }))} options={ROOM_TYPES} />
                 </div>
+                <div className="space-y-1.5">
+                  <Label>RSVP Status</Label>
+                  <Select value={form.rsvp_status} onChange={(v) => setForm((p) => ({ ...p, rsvp_status: v }))} options={RSVP_STATUSES.map((s) => ({ value: s.value, label: s.label }))} />
+                </div>
               </div>
 
               <div className="grid gap-6 sm:grid-cols-3">
+                <div className="space-y-2">
+                  <Label>How Many in Your Group</Label>
+                  <Stepper value={form.group_size} onChange={(n) => setForm((p) => ({ ...p, group_size: n }))} max={30} />
+                </div>
                 <div className="space-y-2">
                   <Label>Rooms Needed</Label>
                   <Stepper value={form.rooms_requested} onChange={(n) => setForm((p) => ({ ...p, rooms_requested: n }))} />
@@ -580,9 +716,16 @@ export default function PlanningPage() {
                   <Label>Nights</Label>
                   <Stepper value={form.nights} onChange={(n) => setForm((p) => ({ ...p, nights: n }))} />
                 </div>
-                <div className="space-y-2">
-                  <Label>RSVP Status</Label>
-                  <Select value={form.rsvp_status} onChange={(v) => setForm((p) => ({ ...p, rsvp_status: v }))} options={RSVP_STATUSES.map((s) => ({ value: s.value, label: s.label }))} />
+              </div>
+
+              <div className="grid gap-4 sm:grid-cols-2">
+                <div className="space-y-1.5">
+                  <Label htmlFor="phone">Phone <span className="text-muted-foreground text-xs">(optional)</span></Label>
+                  <Input id="phone" type="tel" placeholder="e.g. 732-555-0100" value={form.phone} onChange={(e) => setForm((p) => ({ ...p, phone: e.target.value }))} />
+                </div>
+                <div className="space-y-1.5">
+                  <Label htmlFor="room_number">Room Number <span className="text-muted-foreground text-xs">(fill in at check-in)</span></Label>
+                  <Input id="room_number" placeholder="e.g. 214" value={form.room_number} onChange={(e) => setForm((p) => ({ ...p, room_number: e.target.value }))} />
                 </div>
               </div>
 
@@ -595,16 +738,10 @@ export default function PlanningPage() {
                 />
                 <div>
                   <p className="text-sm font-medium">Bringing pets</p>
-                  <p className="text-xs text-muted-foreground">Note: Radisson in Freehold does not allow pets</p>
+                  <p className="text-xs text-muted-foreground">Note: Please confirm pet policy with Hampton Inn directly</p>
                 </div>
                 <PawPrint className="ml-auto h-4 w-4 text-muted-foreground" />
               </label>
-
-              <div className="space-y-1.5">
-                <Label>Who&apos;s Coming</Label>
-                <AttendeeInput chips={form.attendees} onAdd={(n) => setForm((p) => ({ ...p, attendees: [...p.attendees, n], attendee_input: "" }))} onRemove={(n) => setForm((p) => ({ ...p, attendees: p.attendees.filter((a) => a !== n) }))} inputVal={form.attendee_input} onInputChange={(v) => setForm((p) => ({ ...p, attendee_input: v }))} />
-                <p className="text-xs text-muted-foreground">Type each name and press Enter or comma to add.</p>
-              </div>
 
               <div className="space-y-1.5">
                 <Label htmlFor="notes">Notes</Label>
@@ -612,7 +749,7 @@ export default function PlanningPage() {
               </div>
 
               <Button type="submit" disabled={submitting} className="bg-[#d4a853] text-[#1c1208] hover:bg-[#c8553d] hover:text-white transition-colors font-medium">
-                {submitting ? "Adding…" : "Add to the List"}
+                {submitting ? (myId ? "Saving…" : "Adding…") : (myId ? "Save Changes" : "Add to the List")}
               </Button>
             </form>
           </CardContent>

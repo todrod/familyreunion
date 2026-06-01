@@ -14,7 +14,7 @@ const playfair = Playfair_Display({
 
 export const metadata: Metadata = {
   title: "Family Reunion",
-  description: "Rodriguez · Aversa Family Reunion Planning",
+  description: "Aversa Family Reunion Planning",
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {

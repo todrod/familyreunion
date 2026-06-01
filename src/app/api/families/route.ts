@@ -17,25 +17,27 @@ export async function POST(req: NextRequest) {
   }
 
   const body = await req.json();
-  const { family_name, contact_name, rooms_requested, nights, hotel_preference, has_pets, room_type, rsvp_status, attendees, notes } = body;
+  const { family_name, contact_name, rooms_requested, nights, hotel_preference, has_pets, room_type, rsvp_status, attendees, phone, room_number, notes } = body;
 
   if (!family_name || !contact_name) {
     return NextResponse.json({ error: "Family name and contact are required" }, { status: 400 });
   }
 
   const [result] = await pool.query(
-    `INSERT INTO families (family_name, contact_name, rooms_requested, nights, hotel_preference, has_pets, room_type, rsvp_status, attendees, notes)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+    `INSERT INTO families (family_name, contact_name, rooms_requested, nights, hotel_preference, has_pets, room_type, rsvp_status, attendees, phone, room_number, notes)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
     [
       family_name,
       contact_name,
       Number(rooms_requested) || 1,
-      Number(nights) || 3,
+      Number(nights) || 2,
       hotel_preference || "",
       has_pets ? 1 : 0,
       room_type || "",
       rsvp_status || "interested",
       attendees || "",
+      phone || "",
+      room_number || "",
       notes || "",
     ]
   );
