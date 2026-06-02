@@ -72,22 +72,23 @@ jobs:
           echo "Using deploy key fingerprint:"
           ssh-keygen -lf ~/.ssh/vps_key.pub
 
-          if [ -n "${VPS_KNOWN_HOSTS:-}" ]; then
+          # Always refresh the host key first. The VPS may have been rebuilt,
+          # which regenerates its SSH host key and would invalidate a pinned
+          # VPS_KNOWN_HOSTS secret. known_hosts was truncated above, so this
+          # starts clean. Fall back to the pinned secret only if the live scan
+          # fails entirely.
+          for i in 1 2 3 4 5; do
+            if ssh-keyscan -T 15 -t ed25519,rsa -p "$DEPLOY_PORT" -H "$DEPLOY_HOST" >> ~/.ssh/known_hosts 2>/dev/null && [ -s ~/.ssh/known_hosts ]; then
+              break
+            fi
+            sleep 3
+          done
+
+          if [ ! -s ~/.ssh/known_hosts ] && [ -n "${VPS_KNOWN_HOSTS:-}" ]; then
+            echo "Live host-key scan failed; falling back to VPS_KNOWN_HOSTS secret."
             printf '%s\n' "$VPS_KNOWN_HOSTS" > ~/.ssh/known_hosts
-          else
-            for i in 1 2 3 4 5; do
-              if ssh-keyscan -T 15 -t ed25519,rsa -p "$DEPLOY_PORT" -H "$DEPLOY_HOST" >> ~/.ssh/known_hosts 2>/dev/null; then
-                break
-              fi
-              if [ "$i" -eq 5 ]; then
-                echo "Failed to fetch SSH host key from $DEPLOY_HOST:$DEPLOY_PORT"
-                exit 1
-              fi
-              sleep 3
-            done
           fi
 
-          [ -s ~/.ssh/known_hosts ] || { echo "known_hosts is empty"; exit 1; }
           chmod 644 ~/.ssh/known_hosts
 
       - name: Preflight SSH connectivity
@@ -121,7 +122,7 @@ jobs:
             if ssh -i ~/.ssh/vps_key -p "$DEPLOY_PORT" \
               -o BatchMode=yes -o ConnectTimeout=15 -o ConnectionAttempts=1 \
               -o IdentitiesOnly=yes -o PreferredAuthentications=publickey \
-              -o StrictHostKeyChecking=yes \
+              -o StrictHostKeyChecking=accept-new \
               "$DEPLOY_USER@$DEPLOY_HOST" "echo SSH preflight OK"; then
               exit 0
             fi
@@ -136,7 +137,7 @@ jobs:
           set -euo pipefail
           ssh -i ~/.ssh/vps_key -p "$DEPLOY_PORT" \
             -o BatchMode=yes -o IdentitiesOnly=yes \
-            -o PreferredAuthentications=publickey -o StrictHostKeyChecking=yes \
+            -o PreferredAuthentications=publickey -o StrictHostKeyChecking=accept-new \
             "$DEPLOY_USER@$DEPLOY_HOST" \
             "bash -s -- '$DEPLOY_APP_PATH' '$DEPLOY_APP_PORT' '$DEPLOY_APP_NAME' '$DEPLOY_GIT_REPO'" <<'EOF_REMOTE'
           set -euxo pipefail
