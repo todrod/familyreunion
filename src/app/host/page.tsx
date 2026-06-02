@@ -37,6 +37,7 @@ interface TriviaSession {
 interface BingoSession {
   id: number;
   status: "active" | "finished";
+  started: boolean;
   call_interval_seconds: number;
   word_bank: string[];
   called_words: { word: string; call_order: number }[];
@@ -129,6 +130,7 @@ function BingoHostPanel() {
   const [claims, setClaims]         = useState<BingoClaim[]>([]);
   const [dismissed, setDismissed]   = useState<Set<number>>(new Set());
   const [wordBank, setWordBank]     = useState<string[]>([]);
+  const [players, setPlayers]       = useState<{ player_name: string; joined_at: string }[]>([]);
   const countdownRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const pollRef      = useRef<ReturnType<typeof setInterval> | null>(null);
 
@@ -163,6 +165,10 @@ function BingoHostPanel() {
         const data = await res.json() as { session: BingoSession | null };
         setSession(data.session);
         if (data.session) {
+          if (!data.session.started) {
+            const pr = await fetch(`/api/bingo/players?session_id=${data.session.id}`);
+            if (pr.ok) { const pd = await pr.json() as { players: { player_name: string; joined_at: string }[] }; setPlayers(pd.players); }
+          }
           const cr = await fetch(`/api/bingo/claim?session_id=${data.session.id}`);
           if (cr.ok) { const cd = await cr.json() as { claims: BingoClaim[] }; setClaims(cd.claims); }
         }
@@ -193,8 +199,19 @@ function BingoHostPanel() {
     const data = await res.json() as { session: BingoSession };
     setSession(data.session);
     setClaims([]);
+    setPlayers([]);
     setDismissed(new Set());
     setCountdown(null);
+  }
+
+  async function startPlay() {
+    if (!session) return;
+    await fetch("/api/bingo/session", {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ session_id: session.id, action: "start" }),
+    });
+    setSession(prev => prev ? { ...prev, started: true } : prev);
   }
 
   async function callWord() {
@@ -263,7 +280,51 @@ function BingoHostPanel() {
 
           <Button onClick={startGame}
             className="w-full gap-2 bg-[#C99500] text-[#2E1503] hover:bg-[#B84A28] hover:text-[#F7EDD4]">
-            <Play className="h-4 w-4" /> Start New Bingo Game
+            <Play className="h-4 w-4" /> Open Bingo Lobby
+          </Button>
+          <p className="text-center text-xs text-muted-foreground">Players join with a name, then you start when everyone&apos;s in.</p>
+        </div>
+
+      ) : !session.started ? (
+        /* ── Lobby: players joining ── */
+        <div className="rounded-2xl border border-border bg-card p-6 space-y-5">
+          <div className="flex items-center justify-between">
+            <div>
+              <h2 className="text-lg font-semibold" style={{ fontFamily: "var(--font-playfair)" }}>Bingo Lobby</h2>
+              <p className="text-sm text-muted-foreground mt-0.5">
+                Players join at <Link href="/games" className="underline">/games</Link>
+              </p>
+            </div>
+            <button onClick={endGame}
+              className="text-xs text-muted-foreground hover:text-[#B84A28] transition-colors flex items-center gap-1">
+              <X className="h-3 w-3" /> Cancel
+            </button>
+          </div>
+
+          <div className="rounded-xl border border-border bg-muted/20 p-4">
+            <div className="flex items-center gap-2 mb-3">
+              <Users className="h-4 w-4 text-[#C99500]" />
+              <p className="text-sm font-semibold text-foreground">
+                {players.length} {players.length === 1 ? "player" : "players"} joined
+              </p>
+            </div>
+            {players.length === 0 ? (
+              <p className="text-sm text-muted-foreground italic">Waiting for players to join…</p>
+            ) : (
+              <div className="flex flex-wrap gap-2">
+                {players.map(p => (
+                  <span key={p.player_name}
+                    className="rounded-full border border-[#C99500]/30 bg-[#C99500]/10 px-3 py-1 text-sm text-foreground">
+                    {p.player_name}
+                  </span>
+                ))}
+              </div>
+            )}
+          </div>
+
+          <Button onClick={startPlay} disabled={players.length === 0}
+            className="w-full gap-2 bg-[#C99500] text-[#2E1503] hover:bg-[#B84A28] hover:text-[#F7EDD4]">
+            <Play className="h-4 w-4" /> Start Game{players.length > 0 ? ` (${players.length})` : ""}
           </Button>
         </div>
 

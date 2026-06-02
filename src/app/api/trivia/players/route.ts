@@ -1,15 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import pool from "@/lib/db";
-import { verifySession } from "@/lib/auth";
 
 interface PlayerRow { player_name: string; joined_at: string; }
 
 // GET — list players in a session
 export async function GET(req: NextRequest) {
-  if (!await verifySession()) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
-
   const sessionId = req.nextUrl.searchParams.get("session_id");
   if (!sessionId) return NextResponse.json({ error: "Missing session_id" }, { status: 400 });
 
@@ -23,10 +18,6 @@ export async function GET(req: NextRequest) {
 
 // POST — register a player into a session
 export async function POST(req: NextRequest) {
-  if (!await verifySession()) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
-
   const { session_id, player_name } = await req.json() as {
     session_id: number;
     player_name: string;

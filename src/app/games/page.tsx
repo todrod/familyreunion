@@ -10,6 +10,7 @@ import { SiteNav } from "@/components/site-nav";
 interface BingoSession {
   id: number;
   status: "active" | "finished";
+  started: boolean;
   call_interval_seconds: number;
   word_bank: string[];
   called_words: { word: string; call_order: number }[];
@@ -125,6 +126,7 @@ export default function BingoPage() {
   const [showNamePrompt, setShowNamePrompt] = useState(false);
   const [claimStatus, setClaimStatus]   = useState<null | "pending" | "valid" | "invalid">(null);
   const prevSessionId = useRef<number>(-1);
+  const registeredBingo = useRef<number>(-1);
 
   // Load bingo player name
   useEffect(() => {
@@ -168,9 +170,24 @@ export default function BingoPage() {
     }
   }, [daubed, bingoSession]);
 
+  // Register into the lobby once we have a session and a name
+  useEffect(() => {
+    if (!bingoSession || !playerName) return;
+    if (registeredBingo.current === bingoSession.id) return;
+    registeredBingo.current = bingoSession.id;
+    fetch("/api/bingo/players", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ session_id: bingoSession.id, player_name: playerName }),
+    }).catch(() => { /* ignore */ });
+  }, [bingoSession, playerName]);
+
+  // Live = a game exists AND the host has started it (vs. still in the lobby)
+  const live = !!bingoSession?.started;
+
   function daub(idx: number) {
     if (idx === 12) return; // FREE space
-    if (!bingoSession) return;
+    if (!live) return;
     if (!calledWords.has(card[idx])) return; // only daub called words
     setDaubed(prev => {
       const next = new Set(prev);
@@ -212,6 +229,14 @@ export default function BingoPage() {
     setPlayerName(n);
     setShowNamePrompt(false);
     submitClaim(n);
+  }
+
+  function joinBingo() {
+    const n = nameInput.trim();
+    if (!n) return;
+    localStorage.setItem("reunion_bingo_name", n);
+    setPlayerName(n);
+    setNameInput("");
   }
 
   const lastCalledWord = bingoSession?.called_words[bingoSession.called_words.length - 1]?.word ?? null;
@@ -296,7 +321,7 @@ export default function BingoPage() {
           </div>
 
           {/* Page header */}
-          <div className={`no-print flex items-start justify-between ${bingoSession ? "hidden" : ""}`}>
+          <div className={`no-print flex items-start justify-between ${live ? "hidden" : ""}`}>
             <div>
               <h1 className="text-2xl text-foreground" style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic" }}>Family Bingo</h1>
               <p className="text-sm text-muted-foreground">Every card is unique — edit the word bank, generate, then print.</p>
@@ -312,8 +337,41 @@ export default function BingoPage() {
             </div>
           </div>
 
+          {/* ── Join prompt (need a name to play) ── */}
+          {bingoSession && !playerName && (
+            <div className="no-print rounded-2xl border-2 border-[#C99500]/50 bg-card p-5 space-y-3">
+              <div className="text-center">
+                <p className="text-lg font-semibold" style={{ fontFamily: "var(--font-playfair)" }}>Join Family Bingo</p>
+                <p className="text-sm text-muted-foreground mt-0.5">Enter your name so the host can see you and verify your BINGO.</p>
+              </div>
+              <div className="flex gap-2">
+                <input value={nameInput}
+                  onChange={e => setNameInput(e.target.value)}
+                  onKeyDown={e => { if (e.key === "Enter" && nameInput.trim()) joinBingo(); }}
+                  placeholder="Your name…"
+                  className="h-11 flex-1 rounded-xl border border-border bg-background px-4 text-base text-foreground placeholder:text-muted-foreground focus:border-[#C99500]/60 focus:outline-none focus:ring-2 focus:ring-[#C99500]/20 transition-colors"
+                  autoFocus />
+                <Button onClick={joinBingo} disabled={!nameInput.trim()}
+                  className="h-11 bg-[#C99500] text-[#2E1503] hover:bg-[#B84A28] hover:text-[#F7EDD4]">Join</Button>
+              </div>
+            </div>
+          )}
+
+          {/* ── Lobby (joined, waiting for host to start) ── */}
+          {bingoSession && playerName && !live && (
+            <div className="no-print rounded-2xl border-2 border-[#C99500]/50 bg-[#C99500]/5 p-5 text-center space-y-2">
+              <div className="flex items-center justify-center gap-2">
+                <span className="h-2.5 w-2.5 rounded-full bg-green-500 animate-pulse" />
+                <span className="text-base font-semibold text-foreground">You&apos;re in, {playerName}! 🎉</span>
+              </div>
+              <p className="text-sm text-muted-foreground">
+                Waiting for the host to start the game. Tap <strong>New Card</strong> above to shuffle the card you&apos;ll play with.
+              </p>
+            </div>
+          )}
+
           {/* ── Live game banner ── */}
-          {bingoSession && (
+          {live && (
             <div className="no-print rounded-2xl border-2 border-[#C99500]/50 bg-[#C99500]/5 p-4 space-y-3">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
@@ -361,14 +419,14 @@ export default function BingoPage() {
                   const row = Math.floor(i / 5);
                   const col = i % 5;
                   const isFree = cell === "FREE";
-                  const isCalled = bingoSession && !isFree && calledWords.has(cell);
+                  const isCalled = live && !isFree && calledWords.has(cell);
                   const isDaubed = daubed.has(i);
 
                   let cellBg = isFree ? "bg-gradient-to-br from-[#3D1204] to-[#2E1503]" : "bg-card";
                   let cellExtra = "";
                   let cellClick: (() => void) | undefined;
 
-                  if (bingoSession && !isFree) {
+                  if (live && !isFree) {
                     if (isDaubed) {
                       cellBg = "bg-[#C99500]";
                       cellClick = () => daub(i);
@@ -412,7 +470,7 @@ export default function BingoPage() {
           </div>
 
           {/* ── BINGO claim area ── */}
-          {bingoSession && (
+          {live && (
             <div className="no-print space-y-3">
               {claimStatus === null && hasBingo && (
                 <Button onClick={claimBingo}

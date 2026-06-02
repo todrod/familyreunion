@@ -82,6 +82,17 @@ CREATE TABLE IF NOT EXISTS bingo_claims (
   UNIQUE KEY unique_claim (session_id, player_name)
 );
 
+-- Bingo lobby/join (also auto-created by src/lib/bingo.ts, so manual run is optional)
+ALTER TABLE bingo_sessions ADD COLUMN IF NOT EXISTS started TINYINT(1) NOT NULL DEFAULT 0;
+CREATE TABLE IF NOT EXISTS bingo_players (
+  id          INT AUTO_INCREMENT PRIMARY KEY,
+  session_id  INT NOT NULL,
+  player_name VARCHAR(100) NOT NULL,
+  joined_at   TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  UNIQUE KEY unique_bingo_player (session_id, player_name),
+  INDEX idx_bingo_players_session (session_id)
+);
+
 -- Public event sign-up / "what I'm bringing" tables.
 -- NOTE: these are also auto-created and seeded on first use by src/lib/signups.ts,
 -- so running this manually is optional.
