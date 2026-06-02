@@ -81,3 +81,25 @@ CREATE TABLE IF NOT EXISTS bingo_claims (
   INDEX idx_bingo_claim_session (session_id),
   UNIQUE KEY unique_claim (session_id, player_name)
 );
+
+-- Public event sign-up / "what I'm bringing" tables.
+-- NOTE: these are also auto-created and seeded on first use by src/lib/signups.ts,
+-- so running this manually is optional.
+CREATE TABLE IF NOT EXISTS signup_events (
+  id          INT AUTO_INCREMENT PRIMARY KEY,
+  emoji       VARCHAR(8)   NOT NULL DEFAULT '',
+  title       VARCHAR(200) NOT NULL,
+  date_label  VARCHAR(100) NOT NULL DEFAULT '',
+  description TEXT,
+  sort_order  INT          NOT NULL DEFAULT 0,
+  created_at  TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS signup_contributions (
+  id          INT AUTO_INCREMENT PRIMARY KEY,
+  event_id    INT          NOT NULL,
+  name        VARCHAR(100) NOT NULL,
+  item        VARCHAR(255) NOT NULL,
+  created_at  TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  INDEX idx_signup_event (event_id)
+);
