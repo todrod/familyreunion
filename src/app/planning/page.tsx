@@ -40,7 +40,7 @@ const ROOM_TYPES = ["No preference", "King", "Two Doubles", "Adjoining Rooms", "
 const RSVP_STATUSES = [
   { value: "interested", label: "Interested", color: "bg-blue-500/10 text-blue-400 border-blue-400/20" },
   { value: "confirmed",  label: "Confirmed",  color: "bg-[#8b9b6e]/15 text-[#8b9b6e] border-[#8b9b6e]/25" },
-  { value: "deposit",    label: "Deposit Paid", color: "bg-[#d4a853]/15 text-[#d4a853] border-[#d4a853]/25" },
+  { value: "deposit",    label: "Deposit Paid", color: "bg-[#C99500]/15 text-[#C99500] border-[#C99500]/25" },
 ];
 
 /* ─── Types ─────────────────────────────────────────────────────── */
@@ -81,12 +81,12 @@ function Stepper({ value, min = 1, max = 20, onChange }: {
   return (
     <div className="flex items-center gap-2">
       <button type="button" onClick={() => onChange(Math.max(min, value - 1))}
-        className="flex h-8 w-8 items-center justify-center rounded-lg border border-border bg-background text-muted-foreground hover:border-[#d4a853] hover:text-[#d4a853] transition-colors">
+        className="flex h-8 w-8 items-center justify-center rounded-lg border border-border bg-background text-muted-foreground hover:border-[#C99500] hover:text-[#C99500] transition-colors">
         <Minus className="h-3.5 w-3.5" />
       </button>
       <span className="w-6 text-center text-base font-semibold tabular-nums">{value}</span>
       <button type="button" onClick={() => onChange(Math.min(max, value + 1))}
-        className="flex h-8 w-8 items-center justify-center rounded-lg border border-border bg-background text-muted-foreground hover:border-[#d4a853] hover:text-[#d4a853] transition-colors">
+        className="flex h-8 w-8 items-center justify-center rounded-lg border border-border bg-background text-muted-foreground hover:border-[#C99500] hover:text-[#C99500] transition-colors">
         <Plus className="h-3.5 w-3.5" />
       </button>
     </div>
@@ -103,7 +103,7 @@ function Select({ value, onChange, options, className = "" }: {
     <select
       value={value}
       onChange={(e) => onChange(e.target.value)}
-      className={`h-9 w-full rounded-lg border border-border bg-background px-2.5 text-sm text-foreground focus:border-[#d4a853]/60 focus:outline-none focus:ring-2 focus:ring-[#d4a853]/20 transition-colors ${className}`}
+      className={`h-9 w-full rounded-lg border border-border bg-background px-2.5 text-sm text-foreground focus:border-[#C99500]/60 focus:outline-none focus:ring-2 focus:ring-[#C99500]/20 transition-colors ${className}`}
     >
       {options.map((o) =>
         typeof o === "string"
@@ -132,9 +132,9 @@ function AttendeeInput({ chips, onAdd, onRemove, inputVal, onInputChange }: {
     if (name && !chips.includes(name)) onAdd(name);
   }
   return (
-    <div className="flex min-h-[38px] flex-wrap gap-1.5 rounded-lg border border-border bg-background px-2.5 py-2 focus-within:border-[#d4a853]/60 focus-within:ring-2 focus-within:ring-[#d4a853]/20 transition-colors">
+    <div className="flex min-h-[38px] flex-wrap gap-1.5 rounded-lg border border-border bg-background px-2.5 py-2 focus-within:border-[#C99500]/60 focus-within:ring-2 focus-within:ring-[#C99500]/20 transition-colors">
       {chips.map((chip) => (
-        <span key={chip} className="inline-flex items-center gap-1 rounded-md bg-[#d4a853]/15 px-2 py-0.5 text-xs font-medium text-[#d4a853]">
+        <span key={chip} className="inline-flex items-center gap-1 rounded-md bg-[#C99500]/15 px-2 py-0.5 text-xs font-medium text-[#C99500]">
           {chip}
           <button type="button" onClick={() => onRemove(chip)} className="opacity-60 hover:opacity-100"><X className="h-3 w-3" /></button>
         </span>
@@ -188,10 +188,10 @@ function Countdown() {
     <div className="flex items-center gap-3 sm:gap-4">
       {units.map(({ label, value }) => (
         <div key={label} className="flex flex-col items-center">
-          <span className="text-2xl sm:text-3xl font-bold tabular-nums text-[#d4a853]">
+          <span className="text-2xl sm:text-3xl font-bold tabular-nums text-[#C99500]">
             {String(value).padStart(2, "0")}
           </span>
-          <span className="text-[10px] uppercase tracking-widest text-[#a0886a]">{label}</span>
+          <span className="text-[10px] uppercase tracking-widest text-[#A07035]">{label}</span>
         </div>
       ))}
     </div>
@@ -348,7 +348,7 @@ export default function PlanningPage() {
           )}
           <a
             href="/api/families/export"
-            className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-card px-3 py-1.5 text-xs text-muted-foreground hover:border-[#d4a853]/40 hover:text-foreground transition-colors"
+            className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-card px-3 py-1.5 text-xs text-muted-foreground hover:border-[#C99500]/40 hover:text-foreground transition-colors"
           >
             <Download className="h-3.5 w-3.5" /> Export CSV
           </a>
@@ -358,32 +358,32 @@ export default function PlanningPage() {
       <div className="mx-auto max-w-5xl space-y-8 px-4 py-8">
 
         {/* ── Hero ── */}
-        <div className="relative overflow-hidden rounded-2xl border border-[#d4a853]/20 bg-gradient-to-br from-[#261a0c] to-[#1c1208] px-6 py-8 sm:px-10 sm:py-10">
-          <div className="pointer-events-none absolute right-0 top-0 h-64 w-64 rounded-full bg-[#d4a853]/8 blur-[80px]" />
+        <div className="relative overflow-hidden rounded-2xl border border-[#C99500]/20 bg-gradient-to-br from-[#3D1204] to-[#2E1503] px-6 py-8 sm:px-10 sm:py-10">
+          <div className="pointer-events-none absolute right-0 top-0 h-64 w-64 rounded-full bg-[#C99500]/8 blur-[80px]" />
           <div className="relative flex flex-col gap-6 sm:flex-row sm:items-start sm:justify-between">
             <div>
-              <p className="text-xs uppercase tracking-[0.2em] text-[#a0886a]">Planning Hub</p>
-              <h1 className="mt-1 text-3xl text-[#f5ede0] sm:text-4xl" style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic" }}>
+              <p className="text-xs uppercase tracking-[0.2em] text-[#A07035]">Planning Hub</p>
+              <h1 className="mt-1 text-3xl text-[#F7EDD4] sm:text-4xl" style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic" }}>
                 {REUNION.name}
               </h1>
               <div className="mt-4 flex flex-col gap-2 text-sm">
-                <div className="flex items-center gap-1.5 text-[#c4a97d]">
-                  <CalendarDays className="h-4 w-4 shrink-0 text-[#d4a853]" />{REUNION.dates}
+                <div className="flex items-center gap-1.5 text-[#B08040]">
+                  <CalendarDays className="h-4 w-4 shrink-0 text-[#C99500]" />{REUNION.dates}
                 </div>
                 <a href={REUNION.mapsUrl} target="_blank" rel="noopener noreferrer"
-                  className="flex items-center gap-1.5 text-[#c4a97d] hover:text-[#d4a853] transition-colors">
-                  <MapPin className="h-4 w-4 shrink-0 text-[#d4a853]" />{REUNION.location}
+                  className="flex items-center gap-1.5 text-[#B08040] hover:text-[#C99500] transition-colors">
+                  <MapPin className="h-4 w-4 shrink-0 text-[#C99500]" />{REUNION.location}
                 </a>
-                <div className="flex items-center gap-1.5 text-[#a0886a]">
-                  <Phone className="h-4 w-4 shrink-0 text-[#d4a853]" />{REUNION.phone}
+                <div className="flex items-center gap-1.5 text-[#A07035]">
+                  <Phone className="h-4 w-4 shrink-0 text-[#C99500]" />{REUNION.phone}
                 </div>
-                <div className="flex items-center gap-1.5 text-[#a0886a]">
-                  <Clock className="h-4 w-4 shrink-0 text-[#d4a853]" />Block cancellation deadline: <span className="text-[#c8553d] font-medium">{REUNION.hotelDeadline}</span>
+                <div className="flex items-center gap-1.5 text-[#A07035]">
+                  <Clock className="h-4 w-4 shrink-0 text-[#C99500]" />Block cancellation deadline: <span className="text-[#B84A28] font-medium">{REUNION.hotelDeadline}</span>
                 </div>
               </div>
               <div className="mt-5">
                 <a href={REUNION.bookingUrl} target="_blank" rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2 rounded-lg bg-[#d4a853] px-4 py-2 text-sm font-medium text-[#1c1208] hover:bg-[#c8553d] hover:text-[#f5ede0] transition-colors">
+                  className="inline-flex items-center gap-2 rounded-lg bg-[#C99500] px-4 py-2 text-sm font-medium text-[#2E1503] hover:bg-[#B84A28] hover:text-[#F7EDD4] transition-colors">
                   <ExternalLink className="h-4 w-4" /> Book Your Room
                 </a>
               </div>
@@ -391,7 +391,7 @@ export default function PlanningPage() {
             <div className="flex flex-col items-start gap-4 sm:items-end">
               <Image src="/reunion-crest.webp" alt="Aversa Family Reunion crest" width={100} height={100} className="rounded-full opacity-90" />
               <div className="flex flex-col items-start gap-1 sm:items-end">
-                <p className="text-xs uppercase tracking-widest text-[#a0886a]">Countdown to Check-in</p>
+                <p className="text-xs uppercase tracking-widest text-[#A07035]">Countdown to Check-in</p>
                 <Countdown />
               </div>
             </div>
@@ -400,20 +400,20 @@ export default function PlanningPage() {
 
         {/* ── Hotel info ── */}
         <div className="grid gap-4 sm:grid-cols-2">
-          <Card className="border-[#d4a853]/20 bg-card">
+          <Card className="border-[#C99500]/20 bg-card">
             <CardHeader className="pb-2">
               <CardTitle className="flex items-center gap-2 text-base" style={{ fontFamily: "var(--font-playfair)" }}>
-                <BedDouble className="h-4 w-4 text-[#d4a853]" /> Room Rates
+                <BedDouble className="h-4 w-4 text-[#C99500]" /> Room Rates
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-3 text-sm">
               <div className="flex items-center justify-between rounded-lg bg-background px-3 py-2">
                 <span className="text-muted-foreground">King Room</span>
-                <span className="font-semibold text-[#d4a853]">$229 / night</span>
+                <span className="font-semibold text-[#C99500]">$229 / night</span>
               </div>
               <div className="flex items-center justify-between rounded-lg bg-background px-3 py-2">
                 <span className="text-muted-foreground">Two Queen Room</span>
-                <span className="font-semibold text-[#d4a853]">$239 / night</span>
+                <span className="font-semibold text-[#C99500]">$239 / night</span>
               </div>
               <p className="text-xs text-muted-foreground">Rates apply Thu–Sat. Extended stay rates $50–60 less/night. Block of 20 rooms.</p>
             </CardContent>
@@ -429,8 +429,8 @@ export default function PlanningPage() {
               <div className="flex items-center gap-2 text-muted-foreground"><Waves className="h-4 w-4 text-[#8b9b6e]" /> Indoor pool</div>
               <div className="flex items-center gap-2 text-muted-foreground"><PawPrint className="h-4 w-4 text-amber-400" /> Pet-friendly ($75 one-time fee)</div>
               <a href={REUNION.mapsUrl} target="_blank" rel="noopener noreferrer"
-                className="mt-2 flex items-center gap-2 rounded-lg border border-border px-3 py-2 text-xs text-muted-foreground hover:border-[#d4a853]/40 hover:text-foreground transition-colors">
-                <MapPin className="h-3.5 w-3.5 text-[#d4a853]" /> Get Directions · ~30 min from EWR
+                className="mt-2 flex items-center gap-2 rounded-lg border border-border px-3 py-2 text-xs text-muted-foreground hover:border-[#C99500]/40 hover:text-foreground transition-colors">
+                <MapPin className="h-3.5 w-3.5 text-[#C99500]" /> Get Directions · ~30 min from EWR
                 <ExternalLink className="ml-auto h-3 w-3" />
               </a>
             </CardContent>
@@ -439,26 +439,26 @@ export default function PlanningPage() {
 
         {/* ── Stat cards ── */}
         <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
-          <Card className="border-[#d4a853]/20 bg-card col-span-2 sm:col-span-1">
+          <Card className="border-[#C99500]/20 bg-card col-span-2 sm:col-span-1">
             <CardContent className="flex items-center gap-4 p-5">
-              <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-[#d4a853]/15">
-                <BedDouble className="h-5 w-5 text-[#d4a853]" />
+              <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-[#C99500]/15">
+                <BedDouble className="h-5 w-5 text-[#C99500]" />
               </div>
               <div className="min-w-0">
                 <p className="text-2xl font-bold tabular-nums">{totalRooms}</p>
                 <p className="text-sm text-muted-foreground">Rooms</p>
                 <div className="mt-1.5 h-1.5 w-full overflow-hidden rounded-full bg-border">
-                  <div className="h-full rounded-full bg-[#d4a853] transition-all duration-500" style={{ width: `${roomPct}%` }} />
+                  <div className="h-full rounded-full bg-[#C99500] transition-all duration-500" style={{ width: `${roomPct}%` }} />
                 </div>
                 <p className="mt-0.5 text-xs text-muted-foreground">{roomPct}% of {REUNION.targetRooms} target</p>
               </div>
             </CardContent>
           </Card>
 
-          <Card className="border-[#c8553d]/20 bg-card">
+          <Card className="border-[#B84A28]/20 bg-card">
             <CardContent className="flex items-center gap-4 p-5">
-              <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-[#c8553d]/15">
-                <Users className="h-5 w-5 text-[#c8553d]" />
+              <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-[#B84A28]/15">
+                <Users className="h-5 w-5 text-[#B84A28]" />
               </div>
               <div>
                 <p className="text-2xl font-bold tabular-nums">{families.length}</p>
@@ -506,7 +506,7 @@ export default function PlanningPage() {
                   <p className="text-sm font-medium">{hotel.replace(" in Freehold", "").replace("The ", "")}</p>
                   <p className="text-xs text-muted-foreground">{groups} {groups === 1 ? "group" : "groups"}</p>
                 </div>
-                <Badge className="border-[#d4a853]/30 bg-[#d4a853]/10 text-[#d4a853] tabular-nums">
+                <Badge className="border-[#C99500]/30 bg-[#C99500]/10 text-[#C99500] tabular-nums">
                   {rooms} {rooms === 1 ? "room" : "rooms"}
                 </Badge>
               </div>
@@ -530,7 +530,7 @@ export default function PlanningPage() {
             )}
             {families.map((family) =>
               editingId === family.id ? (
-                <Card key={family.id} className="border-[#d4a853]/30 bg-[#d4a853]/5">
+                <Card key={family.id} className="border-[#C99500]/30 bg-[#C99500]/5">
                   <CardContent className="space-y-3 p-4">
                     <Input value={editForm.family_name || ""} onChange={(e) => setEditForm((p) => ({ ...p, family_name: e.target.value }))} placeholder="Family name" className="text-sm" />
                     <Input value={editForm.contact_name || ""} onChange={(e) => setEditForm((p) => ({ ...p, contact_name: e.target.value }))} placeholder="Contact name" className="text-sm" />
@@ -542,13 +542,13 @@ export default function PlanningPage() {
                     <div className="space-y-1"><Label className="text-xs">Room type</Label><Select value={editForm.room_type || "No preference"} onChange={(v) => setEditForm((p) => ({ ...p, room_type: v }))} options={ROOM_TYPES} /></div>
                     <div className="space-y-1"><Label className="text-xs">RSVP Status</Label><Select value={editForm.rsvp_status || "interested"} onChange={(v) => setEditForm((p) => ({ ...p, rsvp_status: v }))} options={RSVP_STATUSES.map((s) => ({ value: s.value, label: s.label }))} /></div>
                     <label className="flex items-center gap-2 text-sm">
-                      <input type="checkbox" checked={!!editForm.has_pets} onChange={(e) => setEditForm((p) => ({ ...p, has_pets: e.target.checked ? 1 : 0 }))} className="h-4 w-4 accent-[#d4a853]" />
+                      <input type="checkbox" checked={!!editForm.has_pets} onChange={(e) => setEditForm((p) => ({ ...p, has_pets: e.target.checked ? 1 : 0 }))} className="h-4 w-4 accent-[#C99500]" />
                       Bringing pets
                     </label>
                     <div className="space-y-1"><Label className="text-xs">Attendees</Label><AttendeeInput chips={editChips} onAdd={(n) => { if (!editChips.includes(n)) setEditChips((p) => [...p, n]); setEditChipInput(""); }} onRemove={(n) => setEditChips((p) => p.filter((c) => c !== n))} inputVal={editChipInput} onInputChange={setEditChipInput} /></div>
                     <Textarea value={editForm.notes || ""} onChange={(e) => setEditForm((p) => ({ ...p, notes: e.target.value }))} placeholder="Notes…" rows={2} className="text-sm" />
                     <div className="flex gap-2">
-                      <Button size="sm" className="bg-[#d4a853] text-[#1c1208] hover:bg-[#c8553d] hover:text-white" onClick={() => saveEdit(family.id)}><Check className="mr-1 h-3.5 w-3.5" />Save</Button>
+                      <Button size="sm" className="bg-[#C99500] text-[#2E1503] hover:bg-[#B84A28] hover:text-white" onClick={() => saveEdit(family.id)}><Check className="mr-1 h-3.5 w-3.5" />Save</Button>
                       <Button size="sm" variant="ghost" onClick={() => setEditingId(null)}>Cancel</Button>
                     </div>
                   </CardContent>
@@ -564,7 +564,7 @@ export default function PlanningPage() {
                         </div>
                         </div>
                       <div className="flex flex-col items-end gap-1">
-                        <Badge className="border-[#d4a853]/30 bg-[#d4a853]/10 text-[#d4a853]">{family.rooms_requested} {family.rooms_requested === 1 ? "room" : "rooms"}</Badge>
+                        <Badge className="border-[#C99500]/30 bg-[#C99500]/10 text-[#C99500]">{family.rooms_requested} {family.rooms_requested === 1 ? "room" : "rooms"}</Badge>
                         <RsvpBadge status={family.rsvp_status} />
                       </div>
                     </div>
@@ -576,14 +576,14 @@ export default function PlanningPage() {
                         {family.room_type && family.room_type !== "No preference" && (
                           <span className="flex items-center gap-1"><BedDouble className="h-3.5 w-3.5" />{family.room_type}</span>
                         )}
-                        {family.phone && <a href={`tel:${family.phone}`} className="flex items-center gap-1 hover:text-[#d4a853]"><Phone className="h-3.5 w-3.5" />{family.phone}</a>}
+                        {family.phone && <a href={`tel:${family.phone}`} className="flex items-center gap-1 hover:text-[#C99500]"><Phone className="h-3.5 w-3.5" />{family.phone}</a>}
                         {family.room_number && <span className="flex items-center gap-1 font-medium text-[#8b9b6e]">Room {family.room_number}</span>}
                       </div>
                       {family.notes && <p className="text-xs text-muted-foreground italic">{family.notes}</p>}
                     </div>
                     <div className="mt-3 flex gap-2">
                       <Button size="sm" variant="ghost" className="h-7 px-2 text-xs text-muted-foreground" onClick={() => startEdit(family)}><Edit2 className="mr-1 h-3 w-3" />Edit</Button>
-                      <Button size="sm" variant="ghost" className="h-7 px-2 text-xs text-[#c8553d]" onClick={() => handleDelete(family.id, family.family_name)}><Trash2 className="mr-1 h-3 w-3" />Remove</Button>
+                      <Button size="sm" variant="ghost" className="h-7 px-2 text-xs text-[#B84A28]" onClick={() => handleDelete(family.id, family.family_name)}><Trash2 className="mr-1 h-3 w-3" />Remove</Button>
                     </div>
                   </CardContent>
                 </Card>
@@ -619,7 +619,7 @@ export default function PlanningPage() {
                   )}
                   {families.map((family) =>
                     editingId === family.id ? (
-                      <TableRow key={family.id} className="border-border bg-[#d4a853]/5">
+                      <TableRow key={family.id} className="border-border bg-[#C99500]/5">
                         <TableCell><Input value={editForm.family_name || ""} onChange={(e) => setEditForm((p) => ({ ...p, family_name: e.target.value }))} className="h-7 text-xs" /></TableCell>
                         <TableCell><Select value={editForm.rsvp_status || "interested"} onChange={(v) => setEditForm((p) => ({ ...p, rsvp_status: v }))} options={RSVP_STATUSES.map((s) => ({ value: s.value, label: s.label }))} /></TableCell>
                         <TableCell className="text-center"><Stepper value={parseInt(editForm.attendees || "1") || 1} onChange={(n) => setEditForm((p) => ({ ...p, attendees: String(n) }))} max={30} /></TableCell>
@@ -631,7 +631,7 @@ export default function PlanningPage() {
                         <TableCell><Input value={editForm.notes || ""} onChange={(e) => setEditForm((p) => ({ ...p, notes: e.target.value }))} className="h-7 text-xs" /></TableCell>
                         <TableCell>
                           <div className="flex gap-1">
-                            <Button size="sm" className="h-7 px-2 text-xs bg-[#d4a853] text-[#1c1208] hover:bg-[#c8553d] hover:text-white" onClick={() => saveEdit(family.id)}><Check className="h-3.5 w-3.5" /></Button>
+                            <Button size="sm" className="h-7 px-2 text-xs bg-[#C99500] text-[#2E1503] hover:bg-[#B84A28] hover:text-white" onClick={() => saveEdit(family.id)}><Check className="h-3.5 w-3.5" /></Button>
                             <Button size="sm" variant="ghost" className="h-7 px-2 text-xs" onClick={() => setEditingId(null)}><X className="h-3.5 w-3.5" /></Button>
                           </div>
                         </TableCell>
@@ -641,11 +641,11 @@ export default function PlanningPage() {
                         <TableCell className="font-medium">{family.family_name}</TableCell>
                         <TableCell><RsvpBadge status={family.rsvp_status} /></TableCell>
                         <TableCell className="text-center text-muted-foreground">{family.attendees || <span className="text-border">—</span>}</TableCell>
-                        <TableCell className="text-center"><Badge className="border-[#d4a853]/30 bg-[#d4a853]/10 text-[#d4a853]">{family.rooms_requested}</Badge></TableCell>
+                        <TableCell className="text-center"><Badge className="border-[#C99500]/30 bg-[#C99500]/10 text-[#C99500]">{family.rooms_requested}</Badge></TableCell>
                         <TableCell className="text-center text-muted-foreground">{family.nights}</TableCell>
                         <TableCell className="text-sm text-muted-foreground">{family.room_type && family.room_type !== "No preference" ? family.room_type : <span className="text-border">—</span>}</TableCell>
                         <TableCell className="text-sm text-muted-foreground">
-                          {family.phone ? <a href={`tel:${family.phone}`} className="hover:text-[#d4a853] transition-colors">{family.phone}</a> : <span className="text-border">—</span>}
+                          {family.phone ? <a href={`tel:${family.phone}`} className="hover:text-[#C99500] transition-colors">{family.phone}</a> : <span className="text-border">—</span>}
                         </TableCell>
                         <TableCell className="text-center">
                           {family.room_number ? <Badge className="border-[#8b9b6e]/30 bg-[#8b9b6e]/10 text-[#8b9b6e]">{family.room_number}</Badge> : <span className="text-xs text-muted-foreground">TBD</span>}
@@ -654,7 +654,7 @@ export default function PlanningPage() {
                         <TableCell>
                           <div className="flex gap-1">
                             <Button size="sm" variant="ghost" className="h-7 w-7 p-0 text-muted-foreground hover:text-foreground" onClick={() => startEdit(family)}><Edit2 className="h-3.5 w-3.5" /></Button>
-                            <Button size="sm" variant="ghost" className="h-7 w-7 p-0 text-[#c8553d]" onClick={() => handleDelete(family.id, family.family_name)}><Trash2 className="h-3.5 w-3.5" /></Button>
+                            <Button size="sm" variant="ghost" className="h-7 w-7 p-0 text-[#B84A28]" onClick={() => handleDelete(family.id, family.family_name)}><Trash2 className="h-3.5 w-3.5" /></Button>
                           </div>
                         </TableCell>
                       </TableRow>
@@ -729,12 +729,12 @@ export default function PlanningPage() {
                 </div>
               </div>
 
-              <label className="flex cursor-pointer items-center gap-3 rounded-lg border border-border bg-background px-4 py-3 hover:border-[#d4a853]/40 transition-colors">
+              <label className="flex cursor-pointer items-center gap-3 rounded-lg border border-border bg-background px-4 py-3 hover:border-[#C99500]/40 transition-colors">
                 <input
                   type="checkbox"
                   checked={form.has_pets}
                   onChange={(e) => setForm((p) => ({ ...p, has_pets: e.target.checked }))}
-                  className="h-4 w-4 accent-[#d4a853]"
+                  className="h-4 w-4 accent-[#C99500]"
                 />
                 <div>
                   <p className="text-sm font-medium">Bringing pets</p>
@@ -748,7 +748,7 @@ export default function PlanningPage() {
                 <Textarea id="notes" placeholder="e.g. need adjoining rooms, dietary needs, mobility considerations…" rows={3} value={form.notes} onChange={(e) => setForm((p) => ({ ...p, notes: e.target.value }))} />
               </div>
 
-              <Button type="submit" disabled={submitting} className="bg-[#d4a853] text-[#1c1208] hover:bg-[#c8553d] hover:text-white transition-colors font-medium">
+              <Button type="submit" disabled={submitting} className="bg-[#C99500] text-[#2E1503] hover:bg-[#B84A28] hover:text-white transition-colors font-medium">
                 {submitting ? (myId ? "Saving…" : "Adding…") : (myId ? "Save Changes" : "Add to the List")}
               </Button>
             </form>

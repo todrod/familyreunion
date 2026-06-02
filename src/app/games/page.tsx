@@ -111,7 +111,7 @@ function generateCard(words: string[]): string[] {
 
 export default function BingoPage() {
   const [words, setWords] = useState<string[]>(DEFAULT_WORDS);
-  const [card, setCard] = useState<string[]>(() => generateCard(DEFAULT_WORDS));
+  const [card, setCard] = useState<string[]>([]);
   const [cardNum, setCardNum] = useState(1);
   const [input, setInput] = useState("");
   const inputRef = useRef<HTMLInputElement>(null);
@@ -216,18 +216,20 @@ export default function BingoPage() {
 
   const lastCalledWord = bingoSession?.called_words[bingoSession.called_words.length - 1]?.word ?? null;
 
-  // Load saved words from localStorage on mount
+  // Load saved words from localStorage on mount and generate card client-side
   useEffect(() => {
+    let wordList = DEFAULT_WORDS;
     try {
       const saved = localStorage.getItem(LS_KEY);
       if (saved) {
         const parsed = JSON.parse(saved) as string[];
         if (Array.isArray(parsed) && parsed.length > 0) {
+          wordList = parsed;
           setWords(parsed);
-          setCard(generateCard(parsed));
         }
       }
     } catch { /* ignore */ }
+    setCard(generateCard(wordList));
   }, []);
 
   // Persist words whenever they change
@@ -278,12 +280,12 @@ export default function BingoPage() {
 
           {/* Game picker */}
           <div className={`no-print grid grid-cols-2 gap-3 ${bingoSession ? "hidden" : ""}`}>
-            <div className="rounded-xl border-2 border-[#d4a853]/40 bg-[#d4a853]/5 px-4 py-3">
-              <p className="text-xs font-semibold uppercase tracking-wider text-[#d4a853]">Playing now</p>
+            <div className="rounded-xl border-2 border-[#C99500]/40 bg-[#C99500]/5 px-4 py-3">
+              <p className="text-xs font-semibold uppercase tracking-wider text-[#C99500]">Playing now</p>
               <p className="mt-0.5 text-sm font-medium text-foreground">Family Bingo</p>
               <p className="text-xs text-muted-foreground">Generate & print cards</p>
             </div>
-            <Link href="/games/trivia" className="rounded-xl border border-border bg-card px-4 py-3 hover:border-[#d4a853]/30 hover:bg-[#d4a853]/5 transition-colors">
+            <Link href="/games/trivia" className="rounded-xl border border-border bg-card px-4 py-3 hover:border-[#C99500]/30 hover:bg-[#C99500]/5 transition-colors">
               <div className="flex items-center gap-1.5">
                 <HelpCircle className="h-3.5 w-3.5 text-muted-foreground" />
                 <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Live game</p>
@@ -304,7 +306,7 @@ export default function BingoPage() {
                 <Shuffle className="h-4 w-4" /> New Card
               </Button>
               <Button onClick={() => window.print()} disabled={tooFew}
-                className="gap-1.5 bg-[#d4a853] text-[#1c1208] hover:bg-[#c8553d] hover:text-[#f5ede0] text-sm">
+                className="gap-1.5 bg-[#C99500] text-[#2E1503] hover:bg-[#B84A28] hover:text-[#F7EDD4] text-sm">
                 <Printer className="h-4 w-4" /> Print
               </Button>
             </div>
@@ -312,7 +314,7 @@ export default function BingoPage() {
 
           {/* ── Live game banner ── */}
           {bingoSession && (
-            <div className="no-print rounded-2xl border-2 border-[#d4a853]/50 bg-[#d4a853]/5 p-4 space-y-3">
+            <div className="no-print rounded-2xl border-2 border-[#C99500]/50 bg-[#C99500]/5 p-4 space-y-3">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <span className="h-2.5 w-2.5 rounded-full bg-green-500 animate-pulse" />
@@ -323,7 +325,7 @@ export default function BingoPage() {
               {lastCalledWord ? (
                 <div className="text-center py-2">
                   <p className="text-xs uppercase tracking-widest text-muted-foreground mb-1">Last Called</p>
-                  <p className={`text-2xl font-black ${calledWords.has(lastCalledWord) ? "text-[#d4a853]" : "text-foreground"}`}>{lastCalledWord}</p>
+                  <p className={`text-2xl font-black ${calledWords.has(lastCalledWord) ? "text-[#C99500]" : "text-foreground"}`}>{lastCalledWord}</p>
                 </div>
               ) : (
                 <p className="text-center text-sm text-muted-foreground">Waiting for the host to call the first word…</p>
@@ -336,22 +338,22 @@ export default function BingoPage() {
 
           {/* Too-few warning */}
           {tooFew && !bingoSession && (
-            <div className="no-print rounded-xl border border-[#c8553d]/30 bg-[#c8553d]/10 px-4 py-3 text-sm text-[#c8553d]">
+            <div className="no-print rounded-xl border border-[#B84A28]/30 bg-[#B84A28]/10 px-4 py-3 text-sm text-[#B84A28]">
               Add at least <strong>{24 - words.length} more word{24 - words.length !== 1 ? "s" : ""}</strong> to the bank before generating a card.
             </div>
           )}
 
           {/* Bingo card */}
           <div className="print-card">
-            <div className="bingo-grid w-full overflow-hidden rounded-2xl border-2 border-[#d4a853]/40 bg-card shadow-xl">
-              <div className="bg-gradient-to-r from-[#261a0c] to-[#1c1208] px-4 py-4 text-center">
-                <p className="text-[10px] uppercase tracking-[0.25em] text-[#a0886a]">14th Aversa Family Reunion · July 2026</p>
-                <h2 className="mt-0.5 text-5xl font-black tracking-[0.45em] text-[#d4a853]" style={{ fontFamily: "var(--font-playfair)" }}>BINGO</h2>
-                <p className="mt-1 text-[10px] text-[#6b5540]">Card #{cardNum}</p>
+            <div className="bingo-grid w-full overflow-hidden rounded-2xl border-2 border-[#C99500]/40 bg-card shadow-xl">
+              <div className="bg-gradient-to-r from-[#3D1204] to-[#2E1503] px-4 py-4 text-center">
+                <p className="text-[10px] uppercase tracking-[0.25em] text-[#A07035]">14th Aversa Family Reunion · July 2026</p>
+                <h2 className="mt-0.5 text-5xl font-black tracking-[0.45em] text-[#C99500]" style={{ fontFamily: "var(--font-playfair)" }}>BINGO</h2>
+                <p className="mt-1 text-[10px] text-[#7A5030]">Card #{cardNum}</p>
               </div>
-              <div className="grid grid-cols-5 border-b-2 border-[#d4a853]/30">
+              <div className="grid grid-cols-5 border-b-2 border-[#C99500]/30">
                 {HEADERS.map((h) => (
-                  <div key={h} className="bg-[#d4a853]/10 py-2 text-center text-xl font-black text-[#d4a853]">{h}</div>
+                  <div key={h} className="bg-[#C99500]/10 py-2 text-center text-xl font-black text-[#C99500]">{h}</div>
                 ))}
               </div>
               <div className="grid grid-cols-5">
@@ -362,17 +364,17 @@ export default function BingoPage() {
                   const isCalled = bingoSession && !isFree && calledWords.has(cell);
                   const isDaubed = daubed.has(i);
 
-                  let cellBg = isFree ? "bg-gradient-to-br from-[#261a0c] to-[#1c1208]" : "bg-card";
+                  let cellBg = isFree ? "bg-gradient-to-br from-[#3D1204] to-[#2E1503]" : "bg-card";
                   let cellExtra = "";
                   let cellClick: (() => void) | undefined;
 
                   if (bingoSession && !isFree) {
                     if (isDaubed) {
-                      cellBg = "bg-[#d4a853]";
+                      cellBg = "bg-[#C99500]";
                       cellClick = () => daub(i);
                     } else if (isCalled) {
-                      cellBg = "bg-[#d4a853]/10";
-                      cellExtra = "ring-2 ring-[#d4a853] cursor-pointer hover:bg-[#d4a853]/20";
+                      cellBg = "bg-[#C99500]/10";
+                      cellExtra = "ring-2 ring-[#C99500] cursor-pointer hover:bg-[#C99500]/20";
                       cellClick = () => daub(i);
                     } else {
                       cellExtra = "opacity-40";
@@ -389,14 +391,14 @@ export default function BingoPage() {
                     >
                       {isFree ? (
                         <div className="flex flex-col items-center gap-1.5">
-                          <div className="h-14 w-14 overflow-hidden rounded-full border-2 border-[#d4a853]/40">
+                          <div className="h-14 w-14 overflow-hidden rounded-full border-2 border-[#C99500]/40">
                             <Image src="/family-tree-photo.jpeg" alt="Aversa family tree" width={56} height={56} style={{ width: "56px", height: "56px", objectFit: "cover" }} />
                           </div>
-                          <span className="text-[9px] uppercase tracking-widest text-[#a0886a]">Free Space</span>
+                          <span className="text-[9px] uppercase tracking-widest text-[#A07035]">Free Space</span>
                         </div>
                       ) : isDaubed ? (
                         <div className="flex flex-col items-center gap-0.5">
-                          <span className="text-xs font-bold leading-tight text-[#1c1208]">{cell}</span>
+                          <span className="text-xs font-bold leading-tight text-[#2E1503]">{cell}</span>
                           <span className="text-lg leading-none">✓</span>
                         </div>
                       ) : (
@@ -414,7 +416,7 @@ export default function BingoPage() {
             <div className="no-print space-y-3">
               {claimStatus === null && hasBingo && (
                 <Button onClick={claimBingo}
-                  className="w-full h-14 text-xl font-black gap-2 bg-[#d4a853] text-[#1c1208] hover:bg-[#c8553d] hover:text-[#f5ede0] animate-pulse">
+                  className="w-full h-14 text-xl font-black gap-2 bg-[#C99500] text-[#2E1503] hover:bg-[#B84A28] hover:text-[#F7EDD4] animate-pulse">
                   🎉 BINGO!
                 </Button>
               )}
@@ -457,12 +459,12 @@ export default function BingoPage() {
                   onChange={e => setNameInput(e.target.value)}
                   onKeyDown={e => { if (e.key === "Enter" && nameInput.trim()) saveName(); }}
                   placeholder="Your name…"
-                  className="h-11 w-full rounded-xl border border-border bg-background px-4 text-base text-foreground placeholder:text-muted-foreground focus:border-[#d4a853]/60 focus:outline-none focus:ring-2 focus:ring-[#d4a853]/20 transition-colors"
+                  className="h-11 w-full rounded-xl border border-border bg-background px-4 text-base text-foreground placeholder:text-muted-foreground focus:border-[#C99500]/60 focus:outline-none focus:ring-2 focus:ring-[#C99500]/20 transition-colors"
                   autoFocus
                 />
                 <div className="flex gap-2">
                   <Button onClick={saveName} disabled={!nameInput.trim()}
-                    className="flex-1 bg-[#d4a853] text-[#1c1208] hover:bg-[#c8553d] hover:text-[#f5ede0]">
+                    className="flex-1 bg-[#C99500] text-[#2E1503] hover:bg-[#B84A28] hover:text-[#F7EDD4]">
                     Claim BINGO! 🎉
                   </Button>
                   <Button variant="outline" onClick={() => setShowNamePrompt(false)}>Cancel</Button>
@@ -479,7 +481,7 @@ export default function BingoPage() {
                 <p className="text-xs text-muted-foreground">{words.length} words · cards draw 24 at random</p>
               </div>
               <button onClick={resetWords}
-                className="flex items-center gap-1.5 rounded-lg border border-border px-3 py-1.5 text-xs text-muted-foreground hover:border-[#d4a853]/40 hover:text-foreground transition-colors">
+                className="flex items-center gap-1.5 rounded-lg border border-border px-3 py-1.5 text-xs text-muted-foreground hover:border-[#C99500]/40 hover:text-foreground transition-colors">
                 <RotateCcw className="h-3 w-3" /> Reset to defaults
               </button>
             </div>
@@ -490,7 +492,7 @@ export default function BingoPage() {
                 <span key={w} className="inline-flex items-center gap-1.5 rounded-full border border-border bg-background px-3 py-1 text-sm">
                   {w}
                   <button onClick={() => removeWord(w)}
-                    className="text-muted-foreground hover:text-[#c8553d] transition-colors"
+                    className="text-muted-foreground hover:text-[#B84A28] transition-colors"
                     aria-label={`Remove ${w}`}>
                     <X className="h-3 w-3" />
                   </button>
@@ -507,7 +509,7 @@ export default function BingoPage() {
                 onChange={(e) => setInput(e.target.value)}
                 onKeyDown={(e) => { if (e.key === "Enter" || e.key === ",") { e.preventDefault(); addWord(); } }}
                 placeholder="Add a word or phrase and press Enter…"
-                className="h-9 flex-1 rounded-lg border border-border bg-background px-3 text-sm text-foreground placeholder:text-muted-foreground focus:border-[#d4a853]/60 focus:outline-none focus:ring-2 focus:ring-[#d4a853]/20 transition-colors"
+                className="h-9 flex-1 rounded-lg border border-border bg-background px-3 text-sm text-foreground placeholder:text-muted-foreground focus:border-[#C99500]/60 focus:outline-none focus:ring-2 focus:ring-[#C99500]/20 transition-colors"
               />
               <Button onClick={addWord} size="sm" variant="outline" className="gap-1.5 h-9">
                 <Plus className="h-4 w-4" /> Add

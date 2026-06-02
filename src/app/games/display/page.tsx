@@ -89,7 +89,7 @@ export default function GamesDisplayPage() {
   const totalAnswers = answers.length;
 
   return (
-    <div className="min-h-screen bg-[#0f0a04] flex flex-col">
+    <div className="min-h-screen bg-[#1A0805] flex flex-col">
       {/* Header */}
       <header className="flex items-center justify-between px-8 py-4 border-b border-white/10">
         <div className="flex items-center gap-3">
@@ -135,10 +135,10 @@ export default function GamesDisplayPage() {
               <h1 className="text-6xl text-white" style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic" }}>
                 Family Trivia
               </h1>
-              <p className="mt-3 text-white/50 text-xl">Join on your phone at <strong className="text-[#d4a853]">/games/trivia</strong></p>
+              <p className="mt-3 text-white/50 text-xl">Join on your phone at <strong className="text-[#C99500]">/games/trivia</strong></p>
             </div>
             <div className="rounded-3xl border border-white/10 bg-white/5 px-8 py-6">
-              <p className="text-[#d4a853] text-5xl font-black">{players.length}</p>
+              <p className="text-[#C99500] text-5xl font-black">{players.length}</p>
               <p className="text-white/50 text-lg mt-1">player{players.length !== 1 ? "s" : ""} ready</p>
               {players.length > 0 && (
                 <div className="mt-6 flex flex-wrap justify-center gap-3">
@@ -157,7 +157,7 @@ export default function GamesDisplayPage() {
         {(session?.status === "question" || session?.status === "reveal") && session.question && (
           <div className="w-full max-w-4xl space-y-6">
             <div className="flex items-center justify-between">
-              <span className="rounded-full border border-[#d4a853]/40 bg-[#d4a853]/10 px-4 py-1.5 text-sm font-medium text-[#d4a853] uppercase tracking-wider">
+              <span className="rounded-full border border-[#C99500]/40 bg-[#C99500]/10 px-4 py-1.5 text-sm font-medium text-[#C99500] uppercase tracking-wider">
                 {session.question.category}
               </span>
               <span className="text-white/40 text-sm flex items-center gap-1.5">
@@ -208,7 +208,7 @@ export default function GamesDisplayPage() {
                     <div key={e.name} className="flex items-center gap-2 rounded-xl bg-white/10 px-3 py-2">
                       <span className="text-xs font-bold text-white/40">#{i + 1}</span>
                       <span className="text-sm font-medium text-white">{e.name}</span>
-                      <span className="text-sm font-bold text-[#d4a853]">{e.score}</span>
+                      <span className="text-sm font-bold text-[#C99500]">{e.score}</span>
                     </div>
                   ))}
                 </div>
@@ -220,19 +220,19 @@ export default function GamesDisplayPage() {
         {/* Final leaderboard */}
         {session?.status === "finished" && (
           <div className="w-full max-w-2xl space-y-6 text-center">
-            <Trophy className="mx-auto h-16 w-16 text-[#d4a853]" />
+            <Trophy className="mx-auto h-16 w-16 text-[#C99500]" />
             <h1 className="text-5xl text-white" style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic" }}>
               Final Results
             </h1>
             <div className="space-y-3">
               {leaderboard.map((entry, i) => (
                 <div key={entry.name}
-                  className={`flex items-center gap-4 rounded-2xl px-6 py-4 ${i === 0 ? "bg-[#d4a853]/20 border border-[#d4a853]/40" : "bg-white/5 border border-white/10"}`}>
-                  <span className={`text-2xl font-black ${i === 0 ? "text-[#d4a853]" : "text-white/40"}`}>
+                  className={`flex items-center gap-4 rounded-2xl px-6 py-4 ${i === 0 ? "bg-[#C99500]/20 border border-[#C99500]/40" : "bg-white/5 border border-white/10"}`}>
+                  <span className={`text-2xl font-black ${i === 0 ? "text-[#C99500]" : "text-white/40"}`}>
                     {i === 0 ? "🏆" : `#${i + 1}`}
                   </span>
                   <span className="flex-1 text-left text-xl font-semibold text-white">{entry.name}</span>
-                  <span className={`text-2xl font-black ${i === 0 ? "text-[#d4a853]" : "text-white/70"}`}>{entry.score}</span>
+                  <span className={`text-2xl font-black ${i === 0 ? "text-[#C99500]" : "text-white/70"}`}>{entry.score}</span>
                 </div>
               ))}
             </div>

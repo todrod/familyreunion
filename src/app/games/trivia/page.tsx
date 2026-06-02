@@ -164,10 +164,10 @@ export default function TriviaPlayerPage() {
                 onChange={(e) => setNameInput(e.target.value)}
                 onKeyDown={(e) => { if (e.key === "Enter") joinGame(); }}
                 placeholder="Your name…"
-                className="h-11 w-full rounded-xl border border-border bg-card px-4 text-base text-foreground placeholder:text-muted-foreground focus:border-[#d4a853]/60 focus:outline-none focus:ring-2 focus:ring-[#d4a853]/20 transition-colors"
+                className="h-11 w-full rounded-xl border border-border bg-card px-4 text-base text-foreground placeholder:text-muted-foreground focus:border-[#C99500]/60 focus:outline-none focus:ring-2 focus:ring-[#C99500]/20 transition-colors"
                 autoFocus
               />
-              <Button onClick={joinGame} className="h-11 w-full bg-[#d4a853] text-[#1c1208] hover:bg-[#c8553d] hover:text-[#f5ede0] text-base font-semibold">
+              <Button onClick={joinGame} className="h-11 w-full bg-[#C99500] text-[#2E1503] hover:bg-[#B84A28] hover:text-[#F7EDD4] text-base font-semibold">
                 Join Game
               </Button>
             </div>
@@ -185,15 +185,15 @@ export default function TriviaPlayerPage() {
 
         ) : session.status === "waiting" ? (
           <div className="flex flex-col items-center gap-5 py-16 text-center">
-            <div className="flex h-16 w-16 items-center justify-center rounded-full bg-[#d4a853]/10 border border-[#d4a853]/30">
-              <Users className="h-7 w-7 text-[#d4a853]" />
+            <div className="flex h-16 w-16 items-center justify-center rounded-full bg-[#C99500]/10 border border-[#C99500]/30">
+              <Users className="h-7 w-7 text-[#C99500]" />
             </div>
             <div>
               <h2 className="text-xl font-semibold" style={{ fontFamily: "var(--font-playfair)" }}>You&rsquo;re in!</h2>
               <p className="mt-1 text-muted-foreground text-sm">Waiting for the host to start…</p>
             </div>
             <div className="rounded-xl border border-border bg-card px-6 py-4 text-center">
-              <p className="text-3xl font-bold text-[#d4a853]">{playerCount}</p>
+              <p className="text-3xl font-bold text-[#C99500]">{playerCount}</p>
               <p className="text-xs text-muted-foreground mt-0.5">player{playerCount !== 1 ? "s" : ""} joined</p>
             </div>
             <p className="text-xs text-muted-foreground/60">
@@ -205,7 +205,7 @@ export default function TriviaPlayerPage() {
         ) : session.status === "finished" ? (
           <div className="space-y-6 py-6">
             <div className="text-center">
-              <Trophy className="mx-auto h-12 w-12 text-[#d4a853]" />
+              <Trophy className="mx-auto h-12 w-12 text-[#C99500]" />
               <h2 className="mt-3 text-2xl" style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic" }}>Game Over!</h2>
               {myRank > 0 && (
                 <p className="mt-1 text-muted-foreground">
@@ -220,7 +220,7 @@ export default function TriviaPlayerPage() {
           <div className="space-y-5">
             {/* Progress */}
             <div className="flex items-center justify-between text-xs text-muted-foreground">
-              <span className="rounded-full border border-border px-2.5 py-1 text-[#d4a853]">{session.question.category}</span>
+              <span className="rounded-full border border-border px-2.5 py-1 text-[#C99500]">{session.question.category}</span>
               <span>Question {session.current_question + 1} of {session.total_questions}</span>
             </div>
 
@@ -243,7 +243,7 @@ export default function TriviaPlayerPage() {
                 if (isReveal) {
                   cls += isCorrect ? OPTION_REVEAL_CORRECT + " border-green-400 " : OPTION_REVEAL_WRONG + " border-transparent ";
                 } else if (isSelected) {
-                  cls += "bg-[#d4a853] border-[#d4a853] text-[#1c1208] ";
+                  cls += "bg-[#C99500] border-[#C99500] text-[#2E1503] ";
                 } else if (submitted) {
                   cls += "bg-zinc-800 border-transparent opacity-60 cursor-not-allowed ";
                 } else {
@@ -289,10 +289,10 @@ function Leaderboard({ entries, highlight, compact }: { entries: LeaderboardEntr
     <div className={`space-y-2 ${compact ? "" : "rounded-2xl border border-border bg-card p-5"}`}>
       {!compact && <h3 className="mb-3 text-sm font-semibold uppercase tracking-wider text-muted-foreground">Leaderboard</h3>}
       {entries.map((entry, i) => (
-        <div key={entry.name} className={`flex items-center gap-3 rounded-xl px-3 py-2.5 ${entry.name === highlight ? "bg-[#d4a853]/15 border border-[#d4a853]/30" : "bg-muted/40"}`}>
+        <div key={entry.name} className={`flex items-center gap-3 rounded-xl px-3 py-2.5 ${entry.name === highlight ? "bg-[#C99500]/15 border border-[#C99500]/30" : "bg-muted/40"}`}>
           <span className="w-6 text-center text-sm font-bold text-muted-foreground">#{i + 1}</span>
           <span className="flex-1 text-sm font-medium text-foreground">{entry.name}</span>
-          <span className="text-sm font-bold text-[#d4a853]">{entry.score}</span>
+          <span className="text-sm font-bold text-[#C99500]">{entry.score}</span>
         </div>
       ))}
     </div>

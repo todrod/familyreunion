@@ -17,7 +17,7 @@ export function SiteNav({ extraRight, noPrint }: SiteNavProps) {
   const isTrivia = pathname === "/games/trivia" || pathname === "/games/trivia/";
   const isHost = pathname.startsWith("/games/trivia/host");
 
-  const activeTop = "rounded-lg border border-[#d4a853]/40 bg-[#d4a853]/10 px-3 py-1.5 text-sm font-medium text-[#d4a853]";
+  const activeTop = "rounded-lg border border-[#C99500]/40 bg-[#C99500]/10 px-3 py-1.5 text-sm font-medium text-[#C99500]";
   const inactiveTop = "rounded-lg px-3 py-1.5 text-sm text-muted-foreground hover:bg-muted hover:text-foreground transition-colors";
   const activeSub = "rounded-lg bg-muted px-3 py-1 text-sm font-medium text-foreground";
   const inactiveSub = "rounded-lg px-3 py-1 text-sm text-muted-foreground hover:bg-muted hover:text-foreground transition-colors";
@@ -33,6 +33,7 @@ export function SiteNav({ extraRight, noPrint }: SiteNavProps) {
           {extraRight}
           <nav className="flex items-center gap-1">
             <Link href="/planning" className={isPlanning ? activeTop : inactiveTop}>Planning</Link>
+            <Link href="/schedule" className={pathname.startsWith("/schedule") ? activeTop : inactiveTop}>Schedule</Link>
             <Link href="/games" className={isGames ? activeTop : inactiveTop}>Games</Link>
             <Link href="/games/display" target="_blank" className={inactiveTop} title="Open TV display">📺</Link>
             <Link href="/host" className={pathname.startsWith("/host") ? activeTop : inactiveTop} title="Host panel">🔒</Link>
@@ -47,7 +48,7 @@ export function SiteNav({ extraRight, noPrint }: SiteNavProps) {
             <Link href="/games" className={isBingo ? activeSub : inactiveSub}>Bingo</Link>
             <Link href="/games/trivia" className={(isTrivia || isHost) ? activeSub : inactiveSub}>Trivia</Link>
             {isHost && (
-              <span className="ml-auto rounded-lg border border-[#d4a853]/30 bg-[#d4a853]/10 px-3 py-1 text-xs font-medium text-[#d4a853]">
+              <span className="ml-auto rounded-lg border border-[#C99500]/30 bg-[#C99500]/10 px-3 py-1 text-xs font-medium text-[#C99500]">
                 🔒 Host Panel
               </span>
             )}
