@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import pool from "@/lib/db";
+import { ensureTriviaSchema } from "@/lib/trivia-db";
 import { TRIVIA_QUESTIONS, type TriviaQuestion } from "@/lib/trivia-questions";
 
 interface SessionRow {
@@ -20,6 +21,7 @@ function parseQuestions(raw: string | null): TriviaQuestion[] {
 }
 
 export async function POST(req: NextRequest) {
+  await ensureTriviaSchema();
   const { session_id, player_name, answer } = await req.json() as {
     session_id: number;
     player_name: string;
@@ -55,6 +57,7 @@ export async function POST(req: NextRequest) {
 
 // GET — get answers for current question (used during reveal)
 export async function GET(req: NextRequest) {
+  await ensureTriviaSchema();
   const sessionId = req.nextUrl.searchParams.get("session_id");
   const qIndex = req.nextUrl.searchParams.get("q");
 

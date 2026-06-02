@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import pool from "@/lib/db";
+import { ensureTriviaSchema } from "@/lib/trivia-db";
 import { TRIVIA_QUESTIONS, type TriviaQuestion } from "@/lib/trivia-questions";
 
 interface SessionRow { questions: string | null; }
@@ -16,6 +17,7 @@ function parseQuestions(raw: string | null): TriviaQuestion[] {
 }
 
 export async function GET(req: NextRequest) {
+  await ensureTriviaSchema();
   const sessionId = req.nextUrl.searchParams.get("session_id");
   if (!sessionId) return NextResponse.json({ error: "Missing session_id" }, { status: 400 });
 

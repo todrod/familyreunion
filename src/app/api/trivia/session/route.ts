@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import pool from "@/lib/db";
+import { ensureTriviaSchema } from "@/lib/trivia-db";
 import { TRIVIA_QUESTIONS, type TriviaQuestion } from "@/lib/trivia-questions";
 import type mysql from "mysql2/promise";
 
@@ -23,6 +24,7 @@ function parseQuestions(raw: string | null): TriviaQuestion[] {
 
 // GET — players + host poll this to get game state (public; games are gated client-side)
 export async function GET() {
+  await ensureTriviaSchema();
   const [rows] = await pool.query(
     "SELECT * FROM trivia_sessions ORDER BY id DESC LIMIT 1"
   );
@@ -56,6 +58,7 @@ export async function GET() {
 
 // POST — host: create a new session with current question bank
 export async function POST(req: NextRequest) {
+  await ensureTriviaSchema();
   const body = await req.json().catch(() => ({})) as { questions?: TriviaQuestion[] };
   const questionsJson = JSON.stringify(
     Array.isArray(body.questions) && body.questions.length > 0
@@ -73,6 +76,7 @@ export async function POST(req: NextRequest) {
 
 // PATCH — host: advance state
 export async function PATCH(req: NextRequest) {
+  await ensureTriviaSchema();
   const { action, session_id } = await req.json() as { action: string; session_id: number };
 
   const [rows] = await pool.query("SELECT * FROM trivia_sessions WHERE id = ?", [session_id]);

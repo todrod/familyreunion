@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import pool from "@/lib/db";
+import { ensureBingoSchema } from "@/lib/bingo";
 import type { RowDataPacket } from "mysql2";
 
 interface WordRow extends RowDataPacket { word: string; }
@@ -32,6 +33,7 @@ function validate(cardWords: string[], markedIndices: number[], calledWords: Set
 }
 
 export async function POST(req: Request) {
+  await ensureBingoSchema();
   const { session_id, player_name, card_words, marked_indices } = await req.json() as {
     session_id: number;
     player_name: string;
@@ -66,6 +68,7 @@ export async function POST(req: Request) {
 }
 
 export async function GET(req: Request) {
+  await ensureBingoSchema();
   const session_id = new URL(req.url).searchParams.get("session_id");
   const conn = await pool.getConnection();
   try {

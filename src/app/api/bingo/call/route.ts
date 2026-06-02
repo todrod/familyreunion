@@ -1,11 +1,13 @@
 import { NextResponse } from "next/server";
 import pool from "@/lib/db";
+import { ensureBingoSchema } from "@/lib/bingo";
 import type { RowDataPacket, ResultSetHeader } from "mysql2";
 
 interface SessionRow extends RowDataPacket { word_bank: string; }
 interface WordRow extends RowDataPacket { word: string; }
 
 export async function POST(req: Request) {
+  await ensureBingoSchema();
   const { session_id } = await req.json() as { session_id: number };
   const conn = await pool.getConnection();
   try {
