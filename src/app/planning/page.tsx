@@ -15,7 +15,7 @@ import {
 import Image from "next/image";
 import Link from "next/link";
 import {
-  Users, BedDouble, CalendarDays, MapPin, Clock,
+  Users, Home, BedDouble, CalendarDays, MapPin, Clock,
   Minus, Plus, X, Edit2, Trash2, Check, Download, PawPrint,
   Phone, ExternalLink, UtensilsCrossed, Waves,
 } from "lucide-react";
@@ -36,12 +36,6 @@ const REUNION = {
 };
 
 const HOTELS = ["No preference", ...REUNION.hotels];
-const ROOM_TYPES = ["No preference", "King", "Two Doubles", "Adjoining Rooms", "Suite"];
-const RSVP_STATUSES = [
-  { value: "interested", label: "Interested", color: "bg-blue-500/10 text-blue-400 border-blue-400/20" },
-  { value: "confirmed",  label: "Confirmed",  color: "bg-[#8b9b6e]/15 text-[#8b9b6e] border-[#8b9b6e]/25" },
-  { value: "deposit",    label: "Deposit Paid", color: "bg-[#C99500]/15 text-[#C99500] border-[#C99500]/25" },
-];
 
 /* ─── Types ─────────────────────────────────────────────────────── */
 interface Family {
@@ -66,8 +60,6 @@ const EMPTY_FORM = {
   rooms_requested: 1,
   nights: 2,
   has_pets: false,
-  room_type: "No preference",
-  rsvp_status: "interested",
   group_size: 1,
   phone: "",
   room_number: "",
@@ -151,12 +143,6 @@ function AttendeeInput({ chips, onAdd, onRemove, inputVal, onInputChange }: {
   );
 }
 
-/* ─── RSVP badge ─────────────────────────────────────────────────── */
-function RsvpBadge({ status }: { status: string }) {
-  const s = RSVP_STATUSES.find((r) => r.value === status) ?? RSVP_STATUSES[0];
-  return <span className={`inline-flex items-center rounded-full border px-2 py-0.5 text-xs font-medium ${s.color}`}>{s.label}</span>;
-}
-
 /* ─── Countdown ──────────────────────────────────────────────────── */
 function Countdown() {
   const [timeLeft, setTimeLeft] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
@@ -238,8 +224,6 @@ export default function PlanningPage() {
       rooms_requested: mine.rooms_requested,
       nights: mine.nights,
       has_pets: mine.has_pets === 1,
-      room_type: mine.room_type || "No preference",
-      rsvp_status: mine.rsvp_status,
       group_size: parseInt(mine.attendees) || 1,
       phone: mine.phone || "",
       room_number: mine.room_number || "",
@@ -250,8 +234,6 @@ export default function PlanningPage() {
   /* Derived stats */
   const totalRooms  = families.reduce((s, f) => s + f.rooms_requested, 0);
   const totalPeople = families.reduce((s, f) => s + (parseInt(f.attendees) || 0), 0);
-  const roomPct     = Math.min(100, Math.round((totalRooms / REUNION.targetRooms) * 100));
-  const withPets    = families.filter((f) => f.has_pets).length;
 
   /* Hotel breakdown */
   const hotelBreakdown = REUNION.hotels.map((h) => ({
@@ -437,61 +419,43 @@ export default function PlanningPage() {
           </Card>
         </div>
 
-        {/* ── Stat cards ── */}
-        <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
-          <Card className="border-[#C99500]/20 bg-card col-span-2 sm:col-span-1">
+        {/* ── Headcount ── */}
+        <div className="grid grid-cols-2 gap-4 sm:grid-cols-3">
+          {/* Total people */}
+          <Card className="border-[#B84A28]/25 bg-card col-span-2 sm:col-span-1">
             <CardContent className="flex items-center gap-4 p-5">
-              <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-[#C99500]/15">
-                <BedDouble className="h-5 w-5 text-[#C99500]" />
-              </div>
-              <div className="min-w-0">
-                <p className="text-2xl font-bold tabular-nums">{totalRooms}</p>
-                <p className="text-sm text-muted-foreground">Rooms</p>
-                <div className="mt-1.5 h-1.5 w-full overflow-hidden rounded-full bg-border">
-                  <div className="h-full rounded-full bg-[#C99500] transition-all duration-500" style={{ width: `${roomPct}%` }} />
-                </div>
-                <p className="mt-0.5 text-xs text-muted-foreground">{roomPct}% of {REUNION.targetRooms} target</p>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card className="border-[#B84A28]/20 bg-card">
-            <CardContent className="flex items-center gap-4 p-5">
-              <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-[#B84A28]/15">
-                <Users className="h-5 w-5 text-[#B84A28]" />
+              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-[#B84A28]/15">
+                <Users className="h-6 w-6 text-[#B84A28]" />
               </div>
               <div>
-                <p className="text-2xl font-bold tabular-nums">{families.length}</p>
-                <p className="text-sm text-muted-foreground">Groups</p>
-                <p className="mt-0.5 text-xs text-muted-foreground">{totalPeople} people</p>
+                <p className="text-3xl font-bold tabular-nums">{totalPeople}</p>
+                <p className="text-sm text-muted-foreground">{totalPeople === 1 ? "Person coming" : "People coming"}</p>
               </div>
             </CardContent>
           </Card>
 
+          {/* Families / groups */}
+          <Card className="border-[#C99500]/20 bg-card">
+            <CardContent className="flex items-center gap-4 p-5">
+              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-[#C99500]/15">
+                <Home className="h-6 w-6 text-[#C99500]" />
+              </div>
+              <div>
+                <p className="text-3xl font-bold tabular-nums">{families.length}</p>
+                <p className="text-sm text-muted-foreground">{families.length === 1 ? "Family" : "Families"}</p>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Rooms */}
           <Card className="border-[#8b9b6e]/20 bg-card">
             <CardContent className="flex items-center gap-4 p-5">
-              <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-[#8b9b6e]/15">
-                <CalendarDays className="h-5 w-5 text-[#8b9b6e]" />
+              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-[#8b9b6e]/15">
+                <BedDouble className="h-6 w-6 text-[#8b9b6e]" />
               </div>
               <div>
-                <p className="text-2xl font-bold tabular-nums">
-                  {families.length > 0 ? Math.round(families.reduce((s, f) => s + f.nights, 0) / families.length) : "—"}
-                </p>
-                <p className="text-sm text-muted-foreground">Avg nights</p>
-                <p className="mt-0.5 text-xs text-muted-foreground">Across all groups</p>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card className={`bg-card ${withPets > 0 ? "border-amber-500/30" : "border-border"}`}>
-            <CardContent className="flex items-center gap-4 p-5">
-              <div className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl ${withPets > 0 ? "bg-amber-500/15" : "bg-border/40"}`}>
-                <PawPrint className={`h-5 w-5 ${withPets > 0 ? "text-amber-400" : "text-muted-foreground"}`} />
-              </div>
-              <div>
-                <p className="text-2xl font-bold tabular-nums">{withPets}</p>
-                <p className="text-sm text-muted-foreground">With pets</p>
-                <p className="mt-0.5 text-xs text-muted-foreground">Need pet-friendly hotel</p>
+                <p className="text-3xl font-bold tabular-nums">{totalRooms}</p>
+                <p className="text-sm text-muted-foreground">{totalRooms === 1 ? "Room" : "Rooms"}</p>
               </div>
             </CardContent>
           </Card>
@@ -539,8 +503,6 @@ export default function PlanningPage() {
                       <div className="space-y-1"><Label className="text-xs">Nights</Label><Stepper value={editForm.nights || 2} onChange={(n) => setEditForm((p) => ({ ...p, nights: n }))} /></div>
                     </div>
                     <div className="space-y-1"><Label className="text-xs">Hotel</Label><Select value={editForm.hotel_preference || "No preference"} onChange={(v) => setEditForm((p) => ({ ...p, hotel_preference: v }))} options={HOTELS} /></div>
-                    <div className="space-y-1"><Label className="text-xs">Room type</Label><Select value={editForm.room_type || "No preference"} onChange={(v) => setEditForm((p) => ({ ...p, room_type: v }))} options={ROOM_TYPES} /></div>
-                    <div className="space-y-1"><Label className="text-xs">RSVP Status</Label><Select value={editForm.rsvp_status || "interested"} onChange={(v) => setEditForm((p) => ({ ...p, rsvp_status: v }))} options={RSVP_STATUSES.map((s) => ({ value: s.value, label: s.label }))} /></div>
                     <label className="flex items-center gap-2 text-sm">
                       <input type="checkbox" checked={!!editForm.has_pets} onChange={(e) => setEditForm((p) => ({ ...p, has_pets: e.target.checked ? 1 : 0 }))} className="h-4 w-4 accent-[#C99500]" />
                       Bringing pets
@@ -565,7 +527,6 @@ export default function PlanningPage() {
                         </div>
                       <div className="flex flex-col items-end gap-1">
                         <Badge className="border-[#C99500]/30 bg-[#C99500]/10 text-[#C99500]">{family.rooms_requested} {family.rooms_requested === 1 ? "room" : "rooms"}</Badge>
-                        <RsvpBadge status={family.rsvp_status} />
                       </div>
                     </div>
                     <Separator className="my-3" />
@@ -573,9 +534,6 @@ export default function PlanningPage() {
                       <div className="flex flex-wrap gap-x-4 gap-y-1 text-muted-foreground">
                         {family.attendees && <span className="flex items-center gap-1"><Users className="h-3.5 w-3.5" />{family.attendees} {Number(family.attendees) === 1 ? "person" : "people"}</span>}
                         <span className="flex items-center gap-1"><CalendarDays className="h-3.5 w-3.5" />{family.nights} nights</span>
-                        {family.room_type && family.room_type !== "No preference" && (
-                          <span className="flex items-center gap-1"><BedDouble className="h-3.5 w-3.5" />{family.room_type}</span>
-                        )}
                         {family.phone && <a href={`tel:${family.phone}`} className="flex items-center gap-1 hover:text-[#C99500]"><Phone className="h-3.5 w-3.5" />{family.phone}</a>}
                         {family.room_number && <span className="flex items-center gap-1 font-medium text-[#8b9b6e]">Room {family.room_number}</span>}
                       </div>
@@ -598,11 +556,9 @@ export default function PlanningPage() {
                 <TableHeader>
                   <TableRow className="border-border hover:bg-transparent">
                     <TableHead className="text-muted-foreground">Family</TableHead>
-                    <TableHead className="text-muted-foreground">Status</TableHead>
-                    <TableHead className="text-center text-muted-foreground">Group</TableHead>
+                    <TableHead className="text-center text-muted-foreground">People</TableHead>
                     <TableHead className="text-center text-muted-foreground">Rooms</TableHead>
                     <TableHead className="text-center text-muted-foreground">Nights</TableHead>
-                    <TableHead className="text-muted-foreground">Room Type</TableHead>
                     <TableHead className="text-muted-foreground">Phone</TableHead>
                     <TableHead className="text-center text-muted-foreground">Room #</TableHead>
                     <TableHead className="text-muted-foreground">Notes</TableHead>
@@ -612,7 +568,7 @@ export default function PlanningPage() {
                 <TableBody>
                   {families.length === 0 && (
                     <TableRow className="border-border">
-                      <TableCell colSpan={10} className="py-12 text-center text-muted-foreground">
+                      <TableCell colSpan={8} className="py-12 text-center text-muted-foreground">
                         No entries yet — add your family below!
                       </TableCell>
                     </TableRow>
@@ -621,11 +577,9 @@ export default function PlanningPage() {
                     editingId === family.id ? (
                       <TableRow key={family.id} className="border-border bg-[#C99500]/5">
                         <TableCell><Input value={editForm.family_name || ""} onChange={(e) => setEditForm((p) => ({ ...p, family_name: e.target.value }))} className="h-7 text-xs" /></TableCell>
-                        <TableCell><Select value={editForm.rsvp_status || "interested"} onChange={(v) => setEditForm((p) => ({ ...p, rsvp_status: v }))} options={RSVP_STATUSES.map((s) => ({ value: s.value, label: s.label }))} /></TableCell>
                         <TableCell className="text-center"><Stepper value={parseInt(editForm.attendees || "1") || 1} onChange={(n) => setEditForm((p) => ({ ...p, attendees: String(n) }))} max={30} /></TableCell>
                         <TableCell><Stepper value={editForm.rooms_requested || 1} onChange={(n) => setEditForm((p) => ({ ...p, rooms_requested: n }))} /></TableCell>
                         <TableCell><Stepper value={editForm.nights || 2} onChange={(n) => setEditForm((p) => ({ ...p, nights: n }))} /></TableCell>
-                        <TableCell><Select value={editForm.room_type || "No preference"} onChange={(v) => setEditForm((p) => ({ ...p, room_type: v }))} options={ROOM_TYPES} /></TableCell>
                         <TableCell><Input value={editForm.phone || ""} onChange={(e) => setEditForm((p) => ({ ...p, phone: e.target.value }))} className="h-7 text-xs" placeholder="555-0100" /></TableCell>
                         <TableCell><Input value={editForm.room_number || ""} onChange={(e) => setEditForm((p) => ({ ...p, room_number: e.target.value }))} className="h-7 text-xs" placeholder="214" /></TableCell>
                         <TableCell><Input value={editForm.notes || ""} onChange={(e) => setEditForm((p) => ({ ...p, notes: e.target.value }))} className="h-7 text-xs" /></TableCell>
@@ -639,11 +593,9 @@ export default function PlanningPage() {
                     ) : (
                       <TableRow key={family.id} className="border-border hover:bg-muted/30">
                         <TableCell className="font-medium">{family.family_name}</TableCell>
-                        <TableCell><RsvpBadge status={family.rsvp_status} /></TableCell>
                         <TableCell className="text-center text-muted-foreground">{family.attendees || <span className="text-border">—</span>}</TableCell>
                         <TableCell className="text-center"><Badge className="border-[#C99500]/30 bg-[#C99500]/10 text-[#C99500]">{family.rooms_requested}</Badge></TableCell>
                         <TableCell className="text-center text-muted-foreground">{family.nights}</TableCell>
-                        <TableCell className="text-sm text-muted-foreground">{family.room_type && family.room_type !== "No preference" ? family.room_type : <span className="text-border">—</span>}</TableCell>
                         <TableCell className="text-sm text-muted-foreground">
                           {family.phone ? <a href={`tel:${family.phone}`} className="hover:text-[#C99500] transition-colors">{family.phone}</a> : <span className="text-border">—</span>}
                         </TableCell>
@@ -690,17 +642,6 @@ export default function PlanningPage() {
               <div className="space-y-1.5">
                 <Label htmlFor="family_name">Last Name *</Label>
                 <Input id="family_name" required placeholder="e.g. DiNicola" value={form.family_name} onChange={(e) => setForm((p) => ({ ...p, family_name: e.target.value }))} />
-              </div>
-
-              <div className="grid gap-4 sm:grid-cols-2">
-                <div className="space-y-1.5">
-                  <Label>Room Type</Label>
-                  <Select value={form.room_type} onChange={(v) => setForm((p) => ({ ...p, room_type: v }))} options={ROOM_TYPES} />
-                </div>
-                <div className="space-y-1.5">
-                  <Label>RSVP Status</Label>
-                  <Select value={form.rsvp_status} onChange={(v) => setForm((p) => ({ ...p, rsvp_status: v }))} options={RSVP_STATUSES.map((s) => ({ value: s.value, label: s.label }))} />
-                </div>
               </div>
 
               <div className="grid gap-6 sm:grid-cols-3">

@@ -35,6 +35,7 @@ export function SiteNav({ extraRight, noPrint }: SiteNavProps) {
             <Link href="/planning" className={isPlanning ? activeTop : inactiveTop}>Planning</Link>
             <Link href="/schedule" className={pathname.startsWith("/schedule") ? activeTop : inactiveTop}>Schedule</Link>
             <Link href="/signup" className={pathname.startsWith("/signup") ? activeTop : inactiveTop}>Sign-Up</Link>
+            <Link href="/bbq" className={pathname.startsWith("/bbq") ? activeTop : inactiveTop}>BBQ</Link>
             <Link href="/games" className={isGames ? activeTop : inactiveTop}>Games</Link>
             <Link href="/games/display" target="_blank" className={inactiveTop} title="Open TV display">📺</Link>
             <Link href="/host" className={pathname.startsWith("/host") ? activeTop : inactiveTop} title="Host panel">🔒</Link>
