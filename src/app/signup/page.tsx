@@ -143,7 +143,7 @@ export default function SignupPage() {
             value={name}
             onChange={(e) => rememberName(e.target.value)}
             placeholder="e.g. Aunt Carol"
-            className="mt-1 h-10 w-full rounded-xl border border-border bg-background px-4 text-sm text-foreground placeholder:text-muted-foreground focus:border-[#C99500]/60 focus:outline-none focus:ring-2 focus:ring-[#C99500]/20 transition-colors"
+            className="mt-1 h-10 w-full rounded-xl border border-border bg-background px-4 text-sm text-foreground placeholder:text-muted-foreground focus:border-[#c28e2b]/60 focus:outline-none focus:ring-2 focus:ring-[#c28e2b]/20 transition-colors"
           />
           <p className="mt-1.5 text-xs text-muted-foreground">Saved on this device so you only type it once.</p>
         </div>
@@ -156,8 +156,8 @@ export default function SignupPage() {
         )}
 
         {!loading && error && (
-          <div className="flex items-start gap-3 rounded-2xl border border-[#B84A28]/30 bg-[#B84A28]/5 p-5 text-sm">
-            <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-[#B84A28]" />
+          <div className="flex items-start gap-3 rounded-2xl border border-[#bf5a33]/30 bg-[#bf5a33]/5 p-5 text-sm">
+            <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-[#bf5a33]" />
             <div>
               <p className="font-medium text-foreground">Couldn&apos;t load the sign-up list.</p>
               <p className="mt-1 text-muted-foreground">Please refresh in a moment — the list lives on the family server.</p>
@@ -174,14 +174,14 @@ export default function SignupPage() {
           return (
             <div key={event.id} className="rounded-2xl border border-border bg-card overflow-hidden">
               {/* Event header */}
-              <div className="border-b border-border/60 bg-[#C99500]/5 px-5 py-4">
+              <div className="border-b border-border/60 bg-[#c28e2b]/5 px-5 py-4">
                 <div className="flex items-baseline gap-2">
                   <span className="text-xl">{event.emoji}</span>
                   <h2 className="text-lg font-semibold text-foreground" style={{ fontFamily: "var(--font-playfair)" }}>
                     {event.title}
                   </h2>
                   {event.date_label && (
-                    <span className="ml-auto text-xs font-medium uppercase tracking-wider text-[#C99500]">{event.date_label}</span>
+                    <span className="ml-auto text-xs font-medium uppercase tracking-wider text-[#c28e2b]">{event.date_label}</span>
                   )}
                 </div>
                 {event.description && <p className="mt-1 text-sm text-muted-foreground">{event.description}</p>}
@@ -194,7 +194,7 @@ export default function SignupPage() {
                 ) : (
                   list.map((c) => (
                     <div key={c.id} className="flex items-center gap-3 rounded-xl border border-border bg-background px-3.5 py-2.5">
-                      <span className="text-[#C99500]">🧺</span>
+                      <span className="text-[#c28e2b]">🧺</span>
                       <span className="text-sm text-foreground">
                         <span className="font-medium">{c.name}</span>
                         <span className="text-muted-foreground"> — {c.item}</span>
@@ -202,7 +202,7 @@ export default function SignupPage() {
                       {mine.has(c.id) && (
                         <button
                           onClick={() => removeContribution(c.id)}
-                          className="ml-auto rounded-lg p-1 text-muted-foreground hover:text-[#B84A28] transition-colors"
+                          className="ml-auto rounded-lg p-1 text-muted-foreground hover:text-[#bf5a33] transition-colors"
                           title="Remove (yours)"
                         >
                           <X className="h-4 w-4" />
@@ -216,7 +216,7 @@ export default function SignupPage() {
               {/* Add form */}
               <div className="border-t border-border/60 px-5 py-4 space-y-2">
                 {dup && (
-                  <p className="flex items-center gap-1.5 text-xs text-[#B84A28]">
+                  <p className="flex items-center gap-1.5 text-xs text-[#bf5a33]">
                     <AlertTriangle className="h-3.5 w-3.5" />
                     Heads up — someone may already be bringing &ldquo;{dup}&rdquo;.
                   </p>
@@ -227,12 +227,12 @@ export default function SignupPage() {
                     onChange={(e) => setDrafts(d => ({ ...d, [event.id]: e.target.value }))}
                     onKeyDown={(e) => { if (e.key === "Enter") addContribution(event.id); }}
                     placeholder="What are you bringing?"
-                    className="h-10 flex-1 rounded-xl border border-border bg-background px-4 text-sm text-foreground placeholder:text-muted-foreground focus:border-[#C99500]/60 focus:outline-none focus:ring-2 focus:ring-[#C99500]/20 transition-colors"
+                    className="h-10 flex-1 rounded-xl border border-border bg-background px-4 text-sm text-foreground placeholder:text-muted-foreground focus:border-[#c28e2b]/60 focus:outline-none focus:ring-2 focus:ring-[#c28e2b]/20 transition-colors"
                   />
                   <Button
                     onClick={() => addContribution(event.id)}
                     disabled={!name.trim() || !draft.trim() || busy === event.id}
-                    className="h-10 shrink-0 gap-1.5 bg-[#C99500] text-[#2E1503] hover:bg-[#B84A28] hover:text-[#F7EDD4]"
+                    className="h-10 shrink-0 gap-1.5 bg-[#c28e2b] text-[#14321f] hover:bg-[#bf5a33] hover:text-[#f6f1e2]"
                   >
                     {busy === event.id ? <Loader2 className="h-4 w-4 animate-spin" /> : <Plus className="h-4 w-4" />}
                     Add
@@ -248,7 +248,7 @@ export default function SignupPage() {
 
         {!loading && !error && events.length === 0 && (
           <div className="flex flex-col items-center gap-2 py-12 text-center text-muted-foreground">
-            <PartyPopper className="h-6 w-6 text-[#C99500]" />
+            <PartyPopper className="h-6 w-6 text-[#c28e2b]" />
             <p className="text-sm">No sign-up events yet. Check back soon!</p>
           </div>
         )}

@@ -1,11 +1,13 @@
 import type { Metadata } from "next";
 import { Geist } from "next/font/google";
-import { Playfair_Display } from "next/font/google";
+import { Fraunces } from "next/font/google";
 import { Toaster } from "@/components/ui/sonner";
 import "./globals.css";
 
 const geist = Geist({ subsets: ["latin"], variable: "--font-geist-sans" });
-const playfair = Playfair_Display({
+// Fraunces: a modern, characterful serif with old-style Italian roots.
+// Kept under the --font-playfair variable so existing headings pick it up.
+const playfair = Fraunces({
   subsets: ["latin"],
   variable: "--font-playfair",
   weight: ["400", "500", "600", "700"],

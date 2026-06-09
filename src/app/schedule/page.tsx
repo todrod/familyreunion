@@ -203,7 +203,7 @@ export default function SchedulePage() {
             variant={editing ? "default" : "outline"}
             size="sm"
             onClick={() => { setEditing(v => !v); setShowEventForm(false); setShowDayForm(false); }}
-            className={editing ? "gap-1.5 bg-[#C99500] text-[#2E1503] hover:bg-[#B84A28] hover:text-white" : "gap-1.5"}
+            className={editing ? "gap-1.5 bg-[#c28e2b] text-[#14321f] hover:bg-[#bf5a33] hover:text-white" : "gap-1.5"}
           >
             {editing ? <><Check className="h-3.5 w-3.5" /> Done</> : <><Pencil className="h-3.5 w-3.5" /> Edit</>}
           </Button>
@@ -215,16 +215,16 @@ export default function SchedulePage() {
           {data.days.map(day => (
             <div key={day.key} className="relative">
               <button onClick={() => setActiveDay(day.key)}
-                className={`w-full rounded-2xl border p-4 text-left transition-all ${activeDay === day.key ? "border-[#C99500]/50 bg-[#C99500]/10 shadow-sm" : "border-border bg-card hover:border-[#C99500]/30 hover:bg-[#C99500]/5"}`}>
+                className={`w-full rounded-2xl border p-4 text-left transition-all ${activeDay === day.key ? "border-[#c28e2b]/50 bg-[#c28e2b]/10 shadow-sm" : "border-border bg-card hover:border-[#c28e2b]/30 hover:bg-[#c28e2b]/5"}`}>
                 <p className="text-2xl mb-2">{day.emoji}</p>
-                <p className={`text-xs font-bold uppercase tracking-wider ${activeDay === day.key ? "text-[#C99500]" : "text-muted-foreground"}`}>
+                <p className={`text-xs font-bold uppercase tracking-wider ${activeDay === day.key ? "text-[#c28e2b]" : "text-muted-foreground"}`}>
                   {day.short} · {day.date}
                 </p>
                 <p className="mt-1 text-sm font-medium text-foreground leading-tight">{day.summary}</p>
               </button>
               {editing && (
                 <button onClick={() => deleteDay(day.key)}
-                  className="absolute -top-2 -right-2 h-6 w-6 rounded-full bg-[#B84A28] text-white flex items-center justify-center hover:bg-red-600 transition-colors shadow-sm"
+                  className="absolute -top-2 -right-2 h-6 w-6 rounded-full bg-[#bf5a33] text-white flex items-center justify-center hover:bg-red-600 transition-colors shadow-sm"
                   title="Remove day">
                   <X className="h-3 w-3" />
                 </button>
@@ -233,7 +233,7 @@ export default function SchedulePage() {
           ))}
           {editing && (
             <button onClick={() => { setShowDayForm(true); setShowEventForm(false); }}
-              className="rounded-2xl border-2 border-dashed border-border p-4 text-center text-muted-foreground hover:border-[#C99500]/40 hover:text-foreground transition-colors flex flex-col items-center justify-center gap-2 min-h-[110px]">
+              className="rounded-2xl border-2 border-dashed border-border p-4 text-center text-muted-foreground hover:border-[#c28e2b]/40 hover:text-foreground transition-colors flex flex-col items-center justify-center gap-2 min-h-[110px]">
               <Plus className="h-5 w-5" />
               <span className="text-xs font-medium">Add Day</span>
             </button>
@@ -242,7 +242,7 @@ export default function SchedulePage() {
 
         {/* Add day form */}
         {editing && showDayForm && (
-          <div className="rounded-2xl border border-[#C99500]/30 bg-card p-5 space-y-4">
+          <div className="rounded-2xl border border-[#c28e2b]/30 bg-card p-5 space-y-4">
             <div className="flex items-center justify-between">
               <h3 className="text-sm font-semibold text-foreground">Add New Day</h3>
               <button onClick={() => setShowDayForm(false)} className="text-muted-foreground hover:text-foreground"><X className="h-4 w-4" /></button>
@@ -270,7 +270,7 @@ export default function SchedulePage() {
               </div>
             </div>
             <div className="flex gap-2">
-              <Button onClick={saveDay} size="sm" className="bg-[#C99500] text-[#2E1503] hover:bg-[#B84A28] hover:text-white gap-1.5">
+              <Button onClick={saveDay} size="sm" className="bg-[#c28e2b] text-[#14321f] hover:bg-[#bf5a33] hover:text-white gap-1.5">
                 <Plus className="h-3.5 w-3.5" /> Add Day
               </Button>
               <Button variant="outline" size="sm" onClick={() => setShowDayForm(false)}>Cancel</Button>
@@ -292,10 +292,10 @@ export default function SchedulePage() {
 
               {dayEvents.map(event => (
                 <div key={event.id} className="flex gap-4">
-                  <div className={`relative z-10 mt-4 flex h-10 w-10 shrink-0 items-center justify-center rounded-full border-2 ${event.highlight ? "border-[#C99500] bg-[#C99500]/15 text-[#C99500]" : "border-border bg-card text-muted-foreground"}`}>
+                  <div className={`relative z-10 mt-4 flex h-10 w-10 shrink-0 items-center justify-center rounded-full border-2 ${event.highlight ? "border-[#c28e2b] bg-[#c28e2b]/15 text-[#c28e2b]" : "border-border bg-card text-muted-foreground"}`}>
                     <EventIcon iconKey={event.iconKey} />
                   </div>
-                  <div className={`flex-1 rounded-2xl border px-5 py-4 space-y-1.5 relative ${event.highlight ? "border-[#C99500]/30 bg-[#C99500]/5" : "border-border bg-card"}`}>
+                  <div className={`flex-1 rounded-2xl border px-5 py-4 space-y-1.5 relative ${event.highlight ? "border-[#c28e2b]/30 bg-[#c28e2b]/5" : "border-border bg-card"}`}>
                     {editing && (
                       <div className="absolute top-3 right-3 flex gap-1.5">
                         <button onClick={() => openEditEvent(event)}
@@ -303,7 +303,7 @@ export default function SchedulePage() {
                           <Pencil className="h-3 w-3" />
                         </button>
                         <button onClick={() => deleteEvent(event.id)}
-                          className="rounded-lg border border-border bg-background p-1.5 text-muted-foreground hover:text-[#B84A28] transition-colors">
+                          className="rounded-lg border border-border bg-background p-1.5 text-muted-foreground hover:text-[#bf5a33] transition-colors">
                           <Trash2 className="h-3 w-3" />
                         </button>
                       </div>
@@ -318,7 +318,7 @@ export default function SchedulePage() {
                     {event.location && (
                       event.locationUrl ? (
                         <a href={event.locationUrl} target="_blank" rel="noopener noreferrer"
-                          className="inline-flex items-center gap-1.5 text-xs text-[#C99500] hover:underline">
+                          className="inline-flex items-center gap-1.5 text-xs text-[#c28e2b] hover:underline">
                           <MapPin className="h-3 w-3 shrink-0" />{event.location}<ExternalLink className="h-3 w-3" />
                         </a>
                       ) : (
@@ -329,7 +329,7 @@ export default function SchedulePage() {
                     )}
                     {event.phone && (
                       <a href={`tel:${event.phone.replace(/\D/g, "")}`}
-                        className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-[#C99500] transition-colors">
+                        className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-[#c28e2b] transition-colors">
                         <Phone className="h-3 w-3 shrink-0" />{event.phone}
                       </a>
                     )}
@@ -340,11 +340,11 @@ export default function SchedulePage() {
               {/* Add event button */}
               {editing && (
                 <div className="flex gap-4">
-                  <div className="relative z-10 mt-4 flex h-10 w-10 shrink-0 items-center justify-center rounded-full border-2 border-dashed border-[#C99500]/40 bg-transparent text-[#C99500]">
+                  <div className="relative z-10 mt-4 flex h-10 w-10 shrink-0 items-center justify-center rounded-full border-2 border-dashed border-[#c28e2b]/40 bg-transparent text-[#c28e2b]">
                     <Plus className="h-4 w-4" />
                   </div>
                   <button onClick={() => { openAddEvent(); setShowDayForm(false); }}
-                    className="flex-1 mt-3 rounded-2xl border-2 border-dashed border-border px-5 py-4 text-left text-sm text-muted-foreground hover:border-[#C99500]/40 hover:text-foreground transition-colors flex items-center gap-2">
+                    className="flex-1 mt-3 rounded-2xl border-2 border-dashed border-border px-5 py-4 text-left text-sm text-muted-foreground hover:border-[#c28e2b]/40 hover:text-foreground transition-colors flex items-center gap-2">
                     <Plus className="h-4 w-4" /> Add event to {currentDay.full}
                   </button>
                 </div>
@@ -353,7 +353,7 @@ export default function SchedulePage() {
 
             {/* Event form */}
             {editing && showEventForm && (
-              <div className="mt-4 rounded-2xl border border-[#C99500]/30 bg-card p-5 space-y-4">
+              <div className="mt-4 rounded-2xl border border-[#c28e2b]/30 bg-card p-5 space-y-4">
                 <div className="flex items-center justify-between">
                   <h3 className="text-sm font-semibold text-foreground">
                     {editingEventId ? "Edit Event" : "Add Event"}
@@ -420,7 +420,7 @@ export default function SchedulePage() {
                 <div className="flex gap-2">
                   <Button onClick={saveEvent} size="sm"
                     disabled={!eventForm.title.trim()}
-                    className="bg-[#C99500] text-[#2E1503] hover:bg-[#B84A28] hover:text-white gap-1.5">
+                    className="bg-[#c28e2b] text-[#14321f] hover:bg-[#bf5a33] hover:text-white gap-1.5">
                     <Check className="h-3.5 w-3.5" /> {editingEventId ? "Save Changes" : "Add Event"}
                   </Button>
                   <Button variant="outline" size="sm" onClick={() => setShowEventForm(false)}>Cancel</Button>
@@ -434,13 +434,13 @@ export default function SchedulePage() {
         <div className="flex items-center justify-between pt-2 border-t border-border">
           {idx > 0 ? (
             <button onClick={() => setActiveDay(data.days[idx - 1].key)}
-              className="flex items-center gap-2 rounded-xl border border-border bg-card px-4 py-2 text-sm text-muted-foreground hover:border-[#C99500]/40 hover:text-foreground transition-colors">
+              className="flex items-center gap-2 rounded-xl border border-border bg-card px-4 py-2 text-sm text-muted-foreground hover:border-[#c28e2b]/40 hover:text-foreground transition-colors">
               ← {data.days[idx - 1].short} · {data.days[idx - 1].date}
             </button>
           ) : <div />}
           {idx < data.days.length - 1 ? (
             <button onClick={() => setActiveDay(data.days[idx + 1].key)}
-              className="flex items-center gap-2 rounded-xl border border-border bg-card px-4 py-2 text-sm text-muted-foreground hover:border-[#C99500]/40 hover:text-foreground transition-colors">
+              className="flex items-center gap-2 rounded-xl border border-border bg-card px-4 py-2 text-sm text-muted-foreground hover:border-[#c28e2b]/40 hover:text-foreground transition-colors">
               {data.days[idx + 1].short} · {data.days[idx + 1].date} →
             </button>
           ) : <div />}
@@ -451,4 +451,4 @@ export default function SchedulePage() {
   );
 }
 
-const inputCls = "h-9 w-full rounded-lg border border-border bg-background px-3 text-sm text-foreground placeholder:text-muted-foreground focus:border-[#C99500]/60 focus:outline-none focus:ring-2 focus:ring-[#C99500]/20 transition-colors";
+const inputCls = "h-9 w-full rounded-lg border border-border bg-background px-3 text-sm text-foreground placeholder:text-muted-foreground focus:border-[#c28e2b]/60 focus:outline-none focus:ring-2 focus:ring-[#c28e2b]/20 transition-colors";

@@ -41,7 +41,7 @@ export function GamesGate({ children }: { children: React.ReactNode }) {
       <div className="flex flex-col items-center justify-center px-4 py-24">
         <div className="w-full max-w-sm space-y-5">
           <div className="text-center">
-            <Lock className="mx-auto h-8 w-8 text-[#C99500]/70 mb-3" />
+            <Lock className="mx-auto h-8 w-8 text-[#c28e2b]/70 mb-3" />
             <h1 className="text-xl font-semibold" style={{ fontFamily: "var(--font-playfair)" }}>
               Games — Coming Soon
             </h1>
@@ -56,10 +56,10 @@ export function GamesGate({ children }: { children: React.ReactNode }) {
             onKeyDown={(e) => { if (e.key === "Enter") unlock(); }}
             placeholder="Password…"
             autoFocus
-            className={`h-10 w-full rounded-xl border bg-card px-4 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 transition-colors ${error ? "border-[#B84A28]/60 focus:ring-[#B84A28]/20" : "border-border focus:border-[#C99500]/60 focus:ring-[#C99500]/20"}`}
+            className={`h-10 w-full rounded-xl border bg-card px-4 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 transition-colors ${error ? "border-[#bf5a33]/60 focus:ring-[#bf5a33]/20" : "border-border focus:border-[#c28e2b]/60 focus:ring-[#c28e2b]/20"}`}
           />
-          {error && <p className="text-xs text-[#B84A28]">Incorrect password.</p>}
-          <Button onClick={unlock} className="h-10 w-full bg-[#C99500] text-[#2E1503] hover:bg-[#B84A28] hover:text-[#F7EDD4]">
+          {error && <p className="text-xs text-[#bf5a33]">Incorrect password.</p>}
+          <Button onClick={unlock} className="h-10 w-full bg-[#c28e2b] text-[#14321f] hover:bg-[#bf5a33] hover:text-[#f6f1e2]">
             Unlock
           </Button>
         </div>

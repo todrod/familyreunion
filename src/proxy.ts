@@ -5,7 +5,7 @@ const SECRET = new TextEncoder().encode(
   process.env.SESSION_SECRET || "fallback-secret"
 );
 
-const PROTECTED = ["/planning"];
+const PROTECTED = ["/planning", "/home"];
 
 export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
@@ -24,5 +24,5 @@ export async function proxy(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/planning/:path*"],
+  matcher: ["/planning/:path*", "/home/:path*"],
 };

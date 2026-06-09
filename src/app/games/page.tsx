@@ -4,7 +4,8 @@ import { useState, useCallback, useEffect, useRef } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { Shuffle, Printer, X, Plus, RotateCcw, HelpCircle, CheckCircle2, XCircle } from "lucide-react";
+import { Shuffle, Printer, FileDown, X, Plus, RotateCcw, HelpCircle, CheckCircle2, XCircle } from "lucide-react";
+import QRCode from "react-qr-code";
 import { SiteNav } from "@/components/site-nav";
 
 interface BingoSession {
@@ -25,73 +26,134 @@ const WIN_LINES = [
 const LS_KEY = "reunion_bingo_words";
 
 const DEFAULT_WORDS = [
-  // Family names
+  // Family surnames
+  "DiMola",
   "Aversa",
-  "The Cousins",
-  "The Aunts",
-  "The Uncles",
-  "Grandma's Recipe",
-  "The Baby",
-  "The Newlyweds",
-  "Long Lost Cousin",
-  "Family Historian",
-  "The Organizer",
-  "The Kids Table",
-  "Uncle with Stories",
-  "Matching Outfits",
-  "The Early Bird",
-  "The Night Owl",
+  "Davino",
+  "D'Ascola",
+  "Iannone",
+  "Mazzola",
+  "Trezza",
+  "Hodges",
+  "Cookes",
+  "Emprin",
+  "Latham",
+  // First names
+  "Antoinette",
+  "Anna",
+  "Camilla",
+  "Rocco",
+  "Vincent",
+  "Sonny",
+  "Albert",
+  "Alfonso",
+  "Umberto",
+  "Felix",
+  "Carol",
+  "Diane",
+  "Tom",
+  "Rocky",
+  "Susie",
+  "Carmen",
+  "Bill",
+  // Places
+  "Brooklyn",
+  "Sheepshead Bay",
+  "Poconos",
+  "Canary Islands",
+  "New Bern",
+  "California",
+  "Florida",
+  "New York",
+  "New Jersey",
+  "Nevada",
+  "North Carolina",
+  "South Carolina",
+  "Maryland",
+  "Banner Avenue",
+  "Hampstead",
+  "Reunion",
+  // Food & traditions
+  "Pasta",
+  "Strufoli",
+  "Apple Fritters",
+  "Meatballs",
+  "Cannoli",
+  "Biscotti",
+  "Sunday Gravy",
+  "Espresso",
+  "Garlic Bread",
+  "Family Recipe",
+  "Sunday Dinner",
+  // Family lore
+  "Card Games",
+  "Haircuts",
+  "Piano",
+  "Pharmacist",
+  // Italian words & greetings
+  "Ciao",
+  "Buongiorno",
+  "Buonasera",
+  "Arrivederci",
+  "Grazie",
+  "Prego",
+  "Famiglia",
+  "Nonna",
+  "Nonno",
+  "Zio",
+  "Zia",
+  "Nipote",
+  "Amore",
+  "Bello",
+  "Bella",
+  "Mangia!",
+  "Salute!",
+  "Cin Cin!",
+  "Benvenuti",
+  "Casa",
+  "Cucina",
+  "Festa",
+  "Paesano",
+  "Compare",
+  "Comare",
   // Reunion moments
+  "Loud Table",
+  "Family Story",
+  "Old Photo",
+  "Cousin",
+  "Grandchild",
+  "Great Grandchild",
+  "Vacation Story",
+  "Wedding Story",
+  "Card Shark",
+  "Lucky Winner",
   "Group Photo",
-  "Selfie Time",
-  "Happy Tears",
-  "Big Hugs",
-  "Remember When",
-  "Old Photos",
-  "First to Pool",
-  "Last to Bed",
-  "Baby Photos",
-  "Best Dancer",
-  "Nap After Brunch",
-  "Double Seconds",
-  "Loud Laughing",
-  "Same Story Again",
-  "Lost Hotel Key",
-  "Wrong Room Floor",
-  "Elevator Wait",
-  "WiFi Password",
-  // Hotel & location
-  "Hampton Inn",
-  "Old Bridge NJ",
-  "Indoor Pool",
-  "Hot Breakfast",
-  "Jersey Shore",
-  "Lobby Hangout",
-  "Room Service",
-  "Pool Float",
-  // Activities
-  "Welcome Toast",
-  "Farewell Brunch",
-  "Late Night Chat",
-  "Breakfast Table",
-  "Pool Cannonball",
-  "Family Trivia",
-  "Card Game",
-  "Photo Slideshow",
-  "Dance Circle",
-  // Themes
-  "14th Reunion",
-  "Summer 2026",
-  "Family Roots",
-  "New Faces",
-  "Old Friends",
-  "Jersey Pride",
-  "Memory Lane",
-  "Road Trip Story",
-  "Keep in Touch",
+  "Hug",
+  "Laughter",
+  "Dance Floor",
   "Family Tree",
-  "All Together",
-  "Next Reunion",
+  "Name Tag",
+  "Raffle",
+  "Trivia",
+  "Dessert Table",
+  // More food
+  "Secret Recipe",
+  "Sunday Sauce",
+  "Homemade Wine",
+  "Fresh Mozzarella",
+  "Sausage & Peppers",
+  "Italian Bread",
+  "Ricotta",
+  "Parmesan",
+  "Lasagna",
+  "Ravioli",
+  "Manicotti",
+  "Cappuccino",
+  "Gelato",
+  "Olive Oil",
+  // Activities
+  "Bocce",
+  "Tarantella",
 ];
 
 const HEADERS = ["B", "I", "N", "G", "O"];
@@ -114,6 +176,7 @@ export default function BingoPage() {
   const [words, setWords] = useState<string[]>(DEFAULT_WORDS);
   const [card, setCard] = useState<string[]>([]);
   const [cardNum, setCardNum] = useState(1);
+  const [pageUrl, setPageUrl] = useState("");
   const [input, setInput] = useState("");
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -241,6 +304,10 @@ export default function BingoPage() {
 
   const lastCalledWord = bingoSession?.called_words[bingoSession.called_words.length - 1]?.word ?? null;
 
+  useEffect(() => {
+    setPageUrl(window.location.origin + "/games");
+  }, []);
+
   // Load saved words from localStorage on mount and generate card client-side
   useEffect(() => {
     let wordList = DEFAULT_WORDS;
@@ -266,6 +333,101 @@ export default function BingoPage() {
     setCard(generateCard(words));
     setCardNum((n) => n + 1);
   }, [words]);
+
+  // Generate a crisp, printable PDF of the current card (vector text, no screenshot).
+  async function downloadPdf() {
+    if (card.length < 25) return;
+    const { jsPDF } = await import("jspdf");
+    const doc = new jsPDF({ unit: "pt", format: "letter" });
+    const W = doc.internal.pageSize.getWidth();
+    const margin = 54;
+    const gw = W - margin * 2;
+    const cell = gw / 5;
+
+    const GREEN = "#14321f", GOLD = "#c28e2b", TAN = "#b39357", INK = "#14321f", LINE = "#c9b48a";
+
+    // Header band
+    let y = margin;
+    const bandH = 76;
+    doc.setFillColor(GREEN);
+    doc.roundedRect(margin, y, gw, bandH, 8, 8, "F");
+    doc.setTextColor(TAN);
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(8);
+    doc.text("14TH AVERSA FAMILY REUNION  ·  JULY 2026", W / 2, y + 22, { align: "center" });
+    doc.setTextColor(GOLD);
+    doc.setFont("times", "bold");
+    doc.setFontSize(42);
+    doc.text("B I N G O", W / 2, y + 56, { align: "center" });
+    doc.setTextColor(TAN);
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(8);
+    doc.text(`Card #${cardNum}`, W / 2, y + 70, { align: "center" });
+    y += bandH + 10;
+
+    // Column headers
+    const colH = 28;
+    doc.setFillColor("#f5ead0");
+    doc.rect(margin, y, gw, colH, "F");
+    doc.setTextColor(GOLD);
+    doc.setFont("times", "bold");
+    doc.setFontSize(17);
+    ["B", "I", "N", "G", "O"].forEach((h, c) =>
+      doc.text(h, margin + cell * c + cell / 2, y + 19, { align: "center" })
+    );
+    y += colH;
+
+    // Grid
+    const gridTop = y;
+    doc.setLineWidth(0.8);
+    doc.setDrawColor(LINE);
+    for (let r = 0; r < 5; r++) {
+      for (let c = 0; c < 5; c++) {
+        const x = margin + c * cell;
+        const cy = gridTop + r * cell;
+        const word = card[r * 5 + c];
+        if (word === "FREE") {
+          doc.setFillColor(GREEN);
+          doc.rect(x, cy, cell, cell, "FD");
+          doc.setTextColor(GOLD);
+          doc.setFont("times", "bold");
+          doc.setFontSize(12);
+          doc.text("FREE", x + cell / 2, cy + cell / 2 - 1, { align: "center" });
+          doc.setTextColor(TAN);
+          doc.setFont("helvetica", "normal");
+          doc.setFontSize(7);
+          doc.text("SPACE", x + cell / 2, cy + cell / 2 + 11, { align: "center" });
+        } else {
+          doc.setFillColor("#ffffff");
+          doc.rect(x, cy, cell, cell, "FD");
+          doc.setTextColor(INK);
+          doc.setFont("helvetica", "normal");
+          let fs = 11;
+          doc.setFontSize(fs);
+          let lines = doc.splitTextToSize(word, cell - 12) as string[];
+          while (lines.length > 3 && fs > 7) {
+            fs -= 1;
+            doc.setFontSize(fs);
+            lines = doc.splitTextToSize(word, cell - 12) as string[];
+          }
+          const lineH = fs * 1.18;
+          let ty = cy + cell / 2 - (lines.length * lineH) / 2 + fs * 0.9;
+          for (const ln of lines) {
+            doc.text(ln, x + cell / 2, ty, { align: "center" });
+            ty += lineH;
+          }
+        }
+      }
+    }
+
+    // Footer
+    doc.setTextColor(TAN);
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(8);
+    doc.text("Aversa Family Reunion · Family Bingo", W / 2, gridTop + 5 * cell + 22, { align: "center" });
+
+    doc.save(`Aversa-Bingo-Card-${cardNum}.pdf`);
+  }
 
   function addWord() {
     const trimmed = input.trim().replace(/,+$/, "");
@@ -305,12 +467,12 @@ export default function BingoPage() {
 
           {/* Game picker */}
           <div className={`no-print grid grid-cols-2 gap-3 ${bingoSession ? "hidden" : ""}`}>
-            <div className="rounded-xl border-2 border-[#C99500]/40 bg-[#C99500]/5 px-4 py-3">
-              <p className="text-xs font-semibold uppercase tracking-wider text-[#C99500]">Playing now</p>
+            <div className="rounded-xl border-2 border-[#c28e2b]/40 bg-[#c28e2b]/5 px-4 py-3">
+              <p className="text-xs font-semibold uppercase tracking-wider text-[#c28e2b]">Playing now</p>
               <p className="mt-0.5 text-sm font-medium text-foreground">Family Bingo</p>
               <p className="text-xs text-muted-foreground">Generate & print cards</p>
             </div>
-            <Link href="/games/trivia" className="rounded-xl border border-border bg-card px-4 py-3 hover:border-[#C99500]/30 hover:bg-[#C99500]/5 transition-colors">
+            <Link href="/games/trivia" className="rounded-xl border border-border bg-card px-4 py-3 hover:border-[#c28e2b]/30 hover:bg-[#c28e2b]/5 transition-colors">
               <div className="flex items-center gap-1.5">
                 <HelpCircle className="h-3.5 w-3.5 text-muted-foreground" />
                 <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Live game</p>
@@ -330,8 +492,11 @@ export default function BingoPage() {
               <Button variant="outline" onClick={newCard} disabled={tooFew} className="gap-1.5 text-sm">
                 <Shuffle className="h-4 w-4" /> New Card
               </Button>
+              <Button variant="outline" onClick={downloadPdf} disabled={tooFew} className="gap-1.5 text-sm">
+                <FileDown className="h-4 w-4" /> Save PDF
+              </Button>
               <Button onClick={() => window.print()} disabled={tooFew}
-                className="gap-1.5 bg-[#C99500] text-[#2E1503] hover:bg-[#B84A28] hover:text-[#F7EDD4] text-sm">
+                className="gap-1.5 bg-[#c28e2b] text-[#14321f] hover:bg-[#bf5a33] hover:text-[#f6f1e2] text-sm">
                 <Printer className="h-4 w-4" /> Print
               </Button>
             </div>
@@ -339,27 +504,35 @@ export default function BingoPage() {
 
           {/* ── Join prompt (need a name to play) ── */}
           {bingoSession && !playerName && (
-            <div className="no-print rounded-2xl border-2 border-[#C99500]/50 bg-card p-5 space-y-3">
+            <div className="no-print rounded-2xl border-2 border-[#c28e2b]/50 bg-card p-5 space-y-4">
               <div className="text-center">
-                <p className="text-lg font-semibold" style={{ fontFamily: "var(--font-playfair)" }}>Join Family Bingo</p>
+                <p className="text-xl font-semibold" style={{ fontFamily: "var(--font-playfair)" }}>Join Family Bingo</p>
                 <p className="text-sm text-muted-foreground mt-0.5">Enter your name so the host can see you and verify your BINGO.</p>
               </div>
-              <div className="flex gap-2">
+              <div className="flex flex-col gap-3 sm:flex-row">
                 <input value={nameInput}
                   onChange={e => setNameInput(e.target.value)}
                   onKeyDown={e => { if (e.key === "Enter" && nameInput.trim()) joinBingo(); }}
                   placeholder="Your name…"
-                  className="h-11 flex-1 rounded-xl border border-border bg-background px-4 text-base text-foreground placeholder:text-muted-foreground focus:border-[#C99500]/60 focus:outline-none focus:ring-2 focus:ring-[#C99500]/20 transition-colors"
+                  className="h-14 flex-1 rounded-xl border border-border bg-background px-4 text-base text-foreground placeholder:text-muted-foreground focus:border-[#c28e2b]/60 focus:outline-none focus:ring-2 focus:ring-[#c28e2b]/20 transition-colors"
                   autoFocus />
                 <Button onClick={joinBingo} disabled={!nameInput.trim()}
-                  className="h-11 bg-[#C99500] text-[#2E1503] hover:bg-[#B84A28] hover:text-[#F7EDD4]">Join</Button>
+                  className="h-14 rounded-xl px-8 text-base font-semibold bg-[#c28e2b] text-[#14321f] hover:bg-[#bf5a33] hover:text-[#f6f1e2]">Join</Button>
               </div>
+              {pageUrl && (
+                <div className="flex items-center gap-3 rounded-xl border border-border bg-background px-4 py-3">
+                  <div className="shrink-0 rounded-lg bg-white p-1.5">
+                    <QRCode value={pageUrl} size={60} bgColor="#ffffff" fgColor="#14321f" />
+                  </div>
+                  <p className="text-xs text-muted-foreground">Others can <strong>scan to pull up a bingo card</strong> on their own phone.</p>
+                </div>
+              )}
             </div>
           )}
 
           {/* ── Lobby (joined, waiting for host to start) ── */}
           {bingoSession && playerName && !live && (
-            <div className="no-print rounded-2xl border-2 border-[#C99500]/50 bg-[#C99500]/5 p-5 text-center space-y-2">
+            <div className="no-print rounded-2xl border-2 border-[#c28e2b]/50 bg-[#c28e2b]/5 p-5 text-center space-y-2">
               <div className="flex items-center justify-center gap-2">
                 <span className="h-2.5 w-2.5 rounded-full bg-green-500 animate-pulse" />
                 <span className="text-base font-semibold text-foreground">You&apos;re in, {playerName}! 🎉</span>
@@ -372,7 +545,7 @@ export default function BingoPage() {
 
           {/* ── Live game banner ── */}
           {live && (
-            <div className="no-print rounded-2xl border-2 border-[#C99500]/50 bg-[#C99500]/5 p-4 space-y-3">
+            <div className="no-print rounded-2xl border-2 border-[#c28e2b]/50 bg-[#c28e2b]/5 p-4 space-y-3">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <span className="h-2.5 w-2.5 rounded-full bg-green-500 animate-pulse" />
@@ -383,7 +556,7 @@ export default function BingoPage() {
               {lastCalledWord ? (
                 <div className="text-center py-2">
                   <p className="text-xs uppercase tracking-widest text-muted-foreground mb-1">Last Called</p>
-                  <p className={`text-2xl font-black ${calledWords.has(lastCalledWord) ? "text-[#C99500]" : "text-foreground"}`}>{lastCalledWord}</p>
+                  <p className={`text-2xl font-black ${calledWords.has(lastCalledWord) ? "text-[#c28e2b]" : "text-foreground"}`}>{lastCalledWord}</p>
                 </div>
               ) : (
                 <p className="text-center text-sm text-muted-foreground">Waiting for the host to call the first word…</p>
@@ -396,22 +569,22 @@ export default function BingoPage() {
 
           {/* Too-few warning */}
           {tooFew && !bingoSession && (
-            <div className="no-print rounded-xl border border-[#B84A28]/30 bg-[#B84A28]/10 px-4 py-3 text-sm text-[#B84A28]">
+            <div className="no-print rounded-xl border border-[#bf5a33]/30 bg-[#bf5a33]/10 px-4 py-3 text-sm text-[#bf5a33]">
               Add at least <strong>{24 - words.length} more word{24 - words.length !== 1 ? "s" : ""}</strong> to the bank before generating a card.
             </div>
           )}
 
           {/* Bingo card */}
           <div className="print-card">
-            <div className="bingo-grid w-full overflow-hidden rounded-2xl border-2 border-[#C99500]/40 bg-card shadow-xl">
-              <div className="bg-gradient-to-r from-[#3D1204] to-[#2E1503] px-4 py-4 text-center">
-                <p className="text-[10px] uppercase tracking-[0.25em] text-[#A07035]">14th Aversa Family Reunion · July 2026</p>
-                <h2 className="mt-0.5 text-5xl font-black tracking-[0.45em] text-[#C99500]" style={{ fontFamily: "var(--font-playfair)" }}>BINGO</h2>
-                <p className="mt-1 text-[10px] text-[#7A5030]">Card #{cardNum}</p>
+            <div className="bingo-grid w-full overflow-hidden rounded-2xl border-2 border-[#c28e2b]/40 bg-card shadow-xl">
+              <div className="bg-gradient-to-r from-[#1d4d33] to-[#14321f] px-4 py-4 text-center">
+                <p className="text-[10px] uppercase tracking-[0.25em] text-[#b39357]">14th Aversa Family Reunion · July 2026</p>
+                <h2 className="mt-0.5 text-5xl font-black tracking-[0.45em] text-[#c28e2b]" style={{ fontFamily: "var(--font-playfair)" }}>BINGO</h2>
+                <p className="mt-1 text-[10px] text-[#7a6a4a]">Card #{cardNum}</p>
               </div>
-              <div className="grid grid-cols-5 border-b-2 border-[#C99500]/30">
+              <div className="grid grid-cols-5 border-b-2 border-[#c28e2b]/30">
                 {HEADERS.map((h) => (
-                  <div key={h} className="bg-[#C99500]/10 py-2 text-center text-xl font-black text-[#C99500]">{h}</div>
+                  <div key={h} className="bg-[#c28e2b]/10 py-2 text-center text-xl font-black text-[#c28e2b]">{h}</div>
                 ))}
               </div>
               <div className="grid grid-cols-5">
@@ -422,17 +595,17 @@ export default function BingoPage() {
                   const isCalled = live && !isFree && calledWords.has(cell);
                   const isDaubed = daubed.has(i);
 
-                  let cellBg = isFree ? "bg-gradient-to-br from-[#3D1204] to-[#2E1503]" : "bg-card";
+                  let cellBg = isFree ? "bg-gradient-to-br from-[#1d4d33] to-[#14321f]" : "bg-card";
                   let cellExtra = "";
                   let cellClick: (() => void) | undefined;
 
                   if (live && !isFree) {
                     if (isDaubed) {
-                      cellBg = "bg-[#C99500]";
+                      cellBg = "bg-[#c28e2b]";
                       cellClick = () => daub(i);
                     } else if (isCalled) {
-                      cellBg = "bg-[#C99500]/10";
-                      cellExtra = "ring-2 ring-[#C99500] cursor-pointer hover:bg-[#C99500]/20";
+                      cellBg = "bg-[#c28e2b]/10";
+                      cellExtra = "ring-2 ring-[#c28e2b] cursor-pointer hover:bg-[#c28e2b]/20";
                       cellClick = () => daub(i);
                     } else {
                       cellExtra = "opacity-40";
@@ -449,14 +622,14 @@ export default function BingoPage() {
                     >
                       {isFree ? (
                         <div className="flex flex-col items-center gap-1.5">
-                          <div className="h-14 w-14 overflow-hidden rounded-full border-2 border-[#C99500]/40">
+                          <div className="h-14 w-14 overflow-hidden rounded-full border-2 border-[#c28e2b]/40">
                             <Image src="/family-tree-photo.jpeg" alt="Aversa family tree" width={56} height={56} style={{ width: "56px", height: "56px", objectFit: "cover" }} />
                           </div>
-                          <span className="text-[9px] uppercase tracking-widest text-[#A07035]">Free Space</span>
+                          <span className="text-[9px] uppercase tracking-widest text-[#b39357]">Free Space</span>
                         </div>
                       ) : isDaubed ? (
                         <div className="flex flex-col items-center gap-0.5">
-                          <span className="text-xs font-bold leading-tight text-[#2E1503]">{cell}</span>
+                          <span className="text-xs font-bold leading-tight text-[#14321f]">{cell}</span>
                           <span className="text-lg leading-none">✓</span>
                         </div>
                       ) : (
@@ -474,7 +647,7 @@ export default function BingoPage() {
             <div className="no-print space-y-3">
               {claimStatus === null && hasBingo && (
                 <Button onClick={claimBingo}
-                  className="w-full h-14 text-xl font-black gap-2 bg-[#C99500] text-[#2E1503] hover:bg-[#B84A28] hover:text-[#F7EDD4] animate-pulse">
+                  className="w-full h-14 text-xl font-black gap-2 bg-[#c28e2b] text-[#14321f] hover:bg-[#bf5a33] hover:text-[#f6f1e2] animate-pulse">
                   🎉 BINGO!
                 </Button>
               )}
@@ -517,12 +690,12 @@ export default function BingoPage() {
                   onChange={e => setNameInput(e.target.value)}
                   onKeyDown={e => { if (e.key === "Enter" && nameInput.trim()) saveName(); }}
                   placeholder="Your name…"
-                  className="h-11 w-full rounded-xl border border-border bg-background px-4 text-base text-foreground placeholder:text-muted-foreground focus:border-[#C99500]/60 focus:outline-none focus:ring-2 focus:ring-[#C99500]/20 transition-colors"
+                  className="h-11 w-full rounded-xl border border-border bg-background px-4 text-base text-foreground placeholder:text-muted-foreground focus:border-[#c28e2b]/60 focus:outline-none focus:ring-2 focus:ring-[#c28e2b]/20 transition-colors"
                   autoFocus
                 />
                 <div className="flex gap-2">
                   <Button onClick={saveName} disabled={!nameInput.trim()}
-                    className="flex-1 bg-[#C99500] text-[#2E1503] hover:bg-[#B84A28] hover:text-[#F7EDD4]">
+                    className="flex-1 bg-[#c28e2b] text-[#14321f] hover:bg-[#bf5a33] hover:text-[#f6f1e2]">
                     Claim BINGO! 🎉
                   </Button>
                   <Button variant="outline" onClick={() => setShowNamePrompt(false)}>Cancel</Button>
@@ -539,7 +712,7 @@ export default function BingoPage() {
                 <p className="text-xs text-muted-foreground">{words.length} words · cards draw 24 at random</p>
               </div>
               <button onClick={resetWords}
-                className="flex items-center gap-1.5 rounded-lg border border-border px-3 py-1.5 text-xs text-muted-foreground hover:border-[#C99500]/40 hover:text-foreground transition-colors">
+                className="flex items-center gap-1.5 rounded-lg border border-border px-3 py-1.5 text-xs text-muted-foreground hover:border-[#c28e2b]/40 hover:text-foreground transition-colors">
                 <RotateCcw className="h-3 w-3" /> Reset to defaults
               </button>
             </div>
@@ -550,7 +723,7 @@ export default function BingoPage() {
                 <span key={w} className="inline-flex items-center gap-1.5 rounded-full border border-border bg-background px-3 py-1 text-sm">
                   {w}
                   <button onClick={() => removeWord(w)}
-                    className="text-muted-foreground hover:text-[#B84A28] transition-colors"
+                    className="text-muted-foreground hover:text-[#bf5a33] transition-colors"
                     aria-label={`Remove ${w}`}>
                     <X className="h-3 w-3" />
                   </button>
@@ -567,7 +740,7 @@ export default function BingoPage() {
                 onChange={(e) => setInput(e.target.value)}
                 onKeyDown={(e) => { if (e.key === "Enter" || e.key === ",") { e.preventDefault(); addWord(); } }}
                 placeholder="Add a word or phrase and press Enter…"
-                className="h-9 flex-1 rounded-lg border border-border bg-background px-3 text-sm text-foreground placeholder:text-muted-foreground focus:border-[#C99500]/60 focus:outline-none focus:ring-2 focus:ring-[#C99500]/20 transition-colors"
+                className="h-9 flex-1 rounded-lg border border-border bg-background px-3 text-sm text-foreground placeholder:text-muted-foreground focus:border-[#c28e2b]/60 focus:outline-none focus:ring-2 focus:ring-[#c28e2b]/20 transition-colors"
               />
               <Button onClick={addWord} size="sm" variant="outline" className="gap-1.5 h-9">
                 <Plus className="h-4 w-4" /> Add

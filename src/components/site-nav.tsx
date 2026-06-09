@@ -17,7 +17,7 @@ export function SiteNav({ extraRight, noPrint }: SiteNavProps) {
   const isTrivia = pathname === "/games/trivia" || pathname === "/games/trivia/";
   const isHost = pathname.startsWith("/games/trivia/host");
 
-  const activeTop = "rounded-lg border border-[#C99500]/40 bg-[#C99500]/10 px-3 py-1.5 text-sm font-medium text-[#C99500]";
+  const activeTop = "rounded-lg border border-[#c28e2b]/40 bg-[#c28e2b]/10 px-3 py-1.5 text-sm font-medium text-[#c28e2b]";
   const inactiveTop = "rounded-lg px-3 py-1.5 text-sm text-muted-foreground hover:bg-muted hover:text-foreground transition-colors";
   const activeSub = "rounded-lg bg-muted px-3 py-1 text-sm font-medium text-foreground";
   const inactiveSub = "rounded-lg px-3 py-1 text-sm text-muted-foreground hover:bg-muted hover:text-foreground transition-colors";
@@ -50,7 +50,7 @@ export function SiteNav({ extraRight, noPrint }: SiteNavProps) {
             <Link href="/games" className={isBingo ? activeSub : inactiveSub}>Bingo</Link>
             <Link href="/games/trivia" className={(isTrivia || isHost) ? activeSub : inactiveSub}>Trivia</Link>
             {isHost && (
-              <span className="ml-auto rounded-lg border border-[#C99500]/30 bg-[#C99500]/10 px-3 py-1 text-xs font-medium text-[#C99500]">
+              <span className="ml-auto rounded-lg border border-[#c28e2b]/30 bg-[#c28e2b]/10 px-3 py-1 text-xs font-medium text-[#c28e2b]">
                 🔒 Host Panel
               </span>
             )}

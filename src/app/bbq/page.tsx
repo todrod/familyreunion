@@ -86,24 +86,24 @@ export default function BbqPage() {
       <div className="mx-auto max-w-3xl space-y-8 px-4 py-8">
 
         {/* ── Hero ── */}
-        <div className="relative overflow-hidden rounded-2xl border border-[#C99500]/20 bg-gradient-to-br from-[#3D1204] to-[#2E1503] px-6 py-8 sm:px-10 sm:py-10">
-          <div className="pointer-events-none absolute right-0 top-0 h-64 w-64 rounded-full bg-[#C99500]/8 blur-[80px]" />
+        <div className="relative overflow-hidden rounded-2xl border border-[#c28e2b]/20 bg-gradient-to-br from-[#1d4d33] to-[#14321f] px-6 py-8 sm:px-10 sm:py-10">
+          <div className="pointer-events-none absolute right-0 top-0 h-64 w-64 rounded-full bg-[#c28e2b]/8 blur-[80px]" />
           <div className="relative">
-            <div className="flex items-center gap-2 text-xs uppercase tracking-[0.2em] text-[#A07035]">
-              <Flame className="h-4 w-4 text-[#C99500]" /> Food Sign-Up
+            <div className="flex items-center gap-2 text-xs uppercase tracking-[0.2em] text-[#b39357]">
+              <Flame className="h-4 w-4 text-[#c28e2b]" /> Food Sign-Up
             </div>
-            <h1 className="mt-1 text-3xl text-[#F7EDD4] sm:text-4xl" style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic" }}>
+            <h1 className="mt-1 text-3xl text-[#f6f1e2] sm:text-4xl" style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic" }}>
               {BBQ.title}
             </h1>
             <div className="mt-4 flex flex-col gap-2 text-sm">
-              <div className="flex items-center gap-1.5 text-[#B08040]">
-                <CalendarDays className="h-4 w-4 shrink-0 text-[#C99500]" />{BBQ.day}
+              <div className="flex items-center gap-1.5 text-[#c8a86a]">
+                <CalendarDays className="h-4 w-4 shrink-0 text-[#c28e2b]" />{BBQ.day}
               </div>
-              <div className="flex items-center gap-1.5 text-[#A07035]">
-                <Clock className="h-4 w-4 shrink-0 text-[#C99500]" />{BBQ.time}
+              <div className="flex items-center gap-1.5 text-[#b39357]">
+                <Clock className="h-4 w-4 shrink-0 text-[#c28e2b]" />{BBQ.time}
               </div>
-              <div className="flex items-center gap-1.5 text-[#A07035]">
-                <MapPin className="h-4 w-4 shrink-0 text-[#C99500]" />Planning for ~{BBQ.guests} guests
+              <div className="flex items-center gap-1.5 text-[#b39357]">
+                <MapPin className="h-4 w-4 shrink-0 text-[#c28e2b]" />Planning for ~{BBQ.guests} guests
               </div>
             </div>
           </div>
@@ -116,14 +116,14 @@ export default function BbqPage() {
 
         {/* ── Progress summary ── */}
         <div className="grid grid-cols-2 gap-4 sm:grid-cols-3">
-          <div className="rounded-xl border border-[#8b9b6e]/25 bg-card p-5">
-            <div className="flex items-center gap-2 text-[#8b9b6e]">
+          <div className="rounded-xl border border-[#5f8a57]/25 bg-card p-5">
+            <div className="flex items-center gap-2 text-[#5f8a57]">
               <Check className="h-4 w-4" /><span className="text-sm">Claimed</span>
             </div>
             <p className="mt-1 text-3xl font-bold tabular-nums">{claimed}</p>
           </div>
-          <div className="rounded-xl border border-[#B84A28]/25 bg-card p-5">
-            <div className="flex items-center gap-2 text-[#B84A28]">
+          <div className="rounded-xl border border-[#bf5a33]/25 bg-card p-5">
+            <div className="flex items-center gap-2 text-[#bf5a33]">
               <CircleAlert className="h-4 w-4" /><span className="text-sm">Still needed</span>
             </div>
             <p className="mt-1 text-3xl font-bold tabular-nums">{needed}</p>
@@ -142,9 +142,9 @@ export default function BbqPage() {
             <p className="mb-2 text-xs font-medium uppercase tracking-wider text-muted-foreground">Who&apos;s bringing</p>
             <div className="flex flex-wrap gap-2">
               {bringers.map((b) => (
-                <span key={b.name} className="inline-flex items-center gap-1.5 rounded-full border border-[#C99500]/30 bg-[#C99500]/10 px-3 py-1 text-sm text-[#C99500]">
+                <span key={b.name} className="inline-flex items-center gap-1.5 rounded-full border border-[#c28e2b]/30 bg-[#c28e2b]/10 px-3 py-1 text-sm text-[#c28e2b]">
                   {b.name}
-                  <span className="rounded-full bg-[#C99500]/20 px-1.5 text-xs tabular-nums">{b.count}</span>
+                  <span className="rounded-full bg-[#c28e2b]/20 px-1.5 text-xs tabular-nums">{b.count}</span>
                 </span>
               ))}
             </div>
@@ -167,15 +167,15 @@ export default function BbqPage() {
                     <p className="font-medium text-foreground">{it.item}</p>
                     <p className="text-xs text-muted-foreground">
                       {it.amount} · {it.unit}
-                      {it.note && <span className="text-[#B84A28]"> · {it.note}</span>}
+                      {it.note && <span className="text-[#bf5a33]"> · {it.note}</span>}
                     </p>
                   </div>
                   {it.who ? (
-                    <span className="inline-flex shrink-0 items-center gap-1.5 rounded-full border border-[#8b9b6e]/30 bg-[#8b9b6e]/10 px-3 py-1 text-xs font-medium text-[#8b9b6e]">
+                    <span className="inline-flex shrink-0 items-center gap-1.5 rounded-full border border-[#5f8a57]/30 bg-[#5f8a57]/10 px-3 py-1 text-xs font-medium text-[#5f8a57]">
                       <Check className="h-3.5 w-3.5" />{it.who}
                     </span>
                   ) : (
-                    <span className="inline-flex shrink-0 items-center gap-1.5 rounded-full border border-[#B84A28]/30 bg-[#B84A28]/10 px-3 py-1 text-xs font-medium text-[#B84A28]">
+                    <span className="inline-flex shrink-0 items-center gap-1.5 rounded-full border border-[#bf5a33]/30 bg-[#bf5a33]/10 px-3 py-1 text-xs font-medium text-[#bf5a33]">
                       <CircleAlert className="h-3.5 w-3.5" />Still needed
                     </span>
                   )}

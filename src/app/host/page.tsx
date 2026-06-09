@@ -79,7 +79,7 @@ export default function HostPage() {
       <div className="min-h-screen bg-background flex flex-col items-center justify-center px-4">
         <div className="w-full max-w-sm space-y-5">
           <div className="text-center">
-            <Lock className="mx-auto h-8 w-8 text-[#C99500]/70 mb-3" />
+            <Lock className="mx-auto h-8 w-8 text-[#c28e2b]/70 mb-3" />
             <h1 className="text-xl font-semibold" style={{ fontFamily: "var(--font-playfair)" }}>Host Access</h1>
             <p className="mt-1 text-sm text-muted-foreground">Enter the host password to continue</p>
           </div>
@@ -87,11 +87,11 @@ export default function HostPage() {
             onChange={e => { setPwInput(e.target.value); setPwError(false); }}
             onKeyDown={e => { if (e.key === "Enter") unlock(); }}
             placeholder="Password…"
-            className={`h-10 w-full rounded-xl border bg-card px-4 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 transition-colors ${pwError ? "border-[#B84A28]/60 focus:ring-[#B84A28]/20" : "border-border focus:border-[#C99500]/60 focus:ring-[#C99500]/20"}`}
+            className={`h-10 w-full rounded-xl border bg-card px-4 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 transition-colors ${pwError ? "border-[#bf5a33]/60 focus:ring-[#bf5a33]/20" : "border-border focus:border-[#c28e2b]/60 focus:ring-[#c28e2b]/20"}`}
             autoFocus
           />
-          {pwError && <p className="text-xs text-[#B84A28]">Incorrect password.</p>}
-          <Button onClick={unlock} className="h-10 w-full bg-[#C99500] text-[#2E1503] hover:bg-[#B84A28] hover:text-[#F7EDD4]">Unlock</Button>
+          {pwError && <p className="text-xs text-[#bf5a33]">Incorrect password.</p>}
+          <Button onClick={unlock} className="h-10 w-full bg-[#c28e2b] text-[#14321f] hover:bg-[#bf5a33] hover:text-[#f6f1e2]">Unlock</Button>
         </div>
       </div>
     );
@@ -271,7 +271,7 @@ function BingoHostPanel() {
             <div className="flex gap-2 flex-wrap">
               {INTERVAL_OPTIONS.map(s => (
                 <button key={s} onClick={() => setCallInterval(s)}
-                  className={`rounded-lg border px-4 py-1.5 text-sm font-medium transition-colors ${callInterval === s ? "border-[#C99500]/50 bg-[#C99500]/10 text-[#C99500]" : "border-border text-muted-foreground hover:border-[#C99500]/30 hover:text-foreground"}`}>
+                  className={`rounded-lg border px-4 py-1.5 text-sm font-medium transition-colors ${callInterval === s ? "border-[#c28e2b]/50 bg-[#c28e2b]/10 text-[#c28e2b]" : "border-border text-muted-foreground hover:border-[#c28e2b]/30 hover:text-foreground"}`}>
                   {s}s
                 </button>
               ))}
@@ -279,7 +279,7 @@ function BingoHostPanel() {
           </div>
 
           <Button onClick={startGame}
-            className="w-full gap-2 bg-[#C99500] text-[#2E1503] hover:bg-[#B84A28] hover:text-[#F7EDD4]">
+            className="w-full gap-2 bg-[#c28e2b] text-[#14321f] hover:bg-[#bf5a33] hover:text-[#f6f1e2]">
             <Play className="h-4 w-4" /> Open Bingo Lobby
           </Button>
           <p className="text-center text-xs text-muted-foreground">Players join with a name, then you start when everyone&apos;s in.</p>
@@ -296,14 +296,14 @@ function BingoHostPanel() {
               </p>
             </div>
             <button onClick={endGame}
-              className="text-xs text-muted-foreground hover:text-[#B84A28] transition-colors flex items-center gap-1">
+              className="text-xs text-muted-foreground hover:text-[#bf5a33] transition-colors flex items-center gap-1">
               <X className="h-3 w-3" /> Cancel
             </button>
           </div>
 
           <div className="rounded-xl border border-border bg-muted/20 p-4">
             <div className="flex items-center gap-2 mb-3">
-              <Users className="h-4 w-4 text-[#C99500]" />
+              <Users className="h-4 w-4 text-[#c28e2b]" />
               <p className="text-sm font-semibold text-foreground">
                 {players.length} {players.length === 1 ? "player" : "players"} joined
               </p>
@@ -314,7 +314,7 @@ function BingoHostPanel() {
               <div className="flex flex-wrap gap-2">
                 {players.map(p => (
                   <span key={p.player_name}
-                    className="rounded-full border border-[#C99500]/30 bg-[#C99500]/10 px-3 py-1 text-sm text-foreground">
+                    className="rounded-full border border-[#c28e2b]/30 bg-[#c28e2b]/10 px-3 py-1 text-sm text-foreground">
                     {p.player_name}
                   </span>
                 ))}
@@ -323,7 +323,7 @@ function BingoHostPanel() {
           </div>
 
           <Button onClick={startPlay} disabled={players.length === 0}
-            className="w-full gap-2 bg-[#C99500] text-[#2E1503] hover:bg-[#B84A28] hover:text-[#F7EDD4]">
+            className="w-full gap-2 bg-[#c28e2b] text-[#14321f] hover:bg-[#bf5a33] hover:text-[#f6f1e2]">
             <Play className="h-4 w-4" /> Start Game{players.length > 0 ? ` (${players.length})` : ""}
           </Button>
         </div>
@@ -339,19 +339,19 @@ function BingoHostPanel() {
               </span>
             </div>
             <button onClick={endGame}
-              className="text-xs text-muted-foreground hover:text-[#B84A28] transition-colors flex items-center gap-1">
+              className="text-xs text-muted-foreground hover:text-[#bf5a33] transition-colors flex items-center gap-1">
               <X className="h-3 w-3" /> End Game
             </button>
           </div>
 
           {/* ── Current word display ── */}
-          <div className="rounded-2xl border-2 border-[#C99500]/40 bg-gradient-to-br from-[#3D1204] to-[#2E1503] p-6 text-center">
+          <div className="rounded-2xl border-2 border-[#c28e2b]/40 bg-gradient-to-br from-[#1d4d33] to-[#14321f] p-6 text-center">
             {lastWord ? (
               <>
-                <p className="text-xs uppercase tracking-widest text-[#A07035] mb-3">Current Word</p>
-                <p className="text-4xl md:text-5xl font-black text-[#C99500] leading-tight">{lastWord}</p>
+                <p className="text-xs uppercase tracking-widest text-[#b39357] mb-3">Current Word</p>
+                <p className="text-4xl md:text-5xl font-black text-[#c28e2b] leading-tight">{lastWord}</p>
                 {countdown !== null && countdown > 0 && (
-                  <div className="mt-4 flex items-center justify-center gap-1.5 text-[#A07035]">
+                  <div className="mt-4 flex items-center justify-center gap-1.5 text-[#b39357]">
                     <Clock className="h-3.5 w-3.5" />
                     <span className="text-sm">{countdown}s</span>
                   </div>
@@ -361,7 +361,7 @@ function BingoHostPanel() {
                 )}
               </>
             ) : (
-              <p className="text-[#A07035] text-lg">Press &ldquo;Call Word&rdquo; to begin!</p>
+              <p className="text-[#b39357] text-lg">Press &ldquo;Call Word&rdquo; to begin!</p>
             )}
           </div>
 
@@ -369,7 +369,7 @@ function BingoHostPanel() {
           <Button
             onClick={callWord}
             disabled={calling || allCalled}
-            className={`w-full gap-2 text-base h-12 transition-all ${readyForNext && lastWord ? "bg-green-600 hover:bg-green-500 text-white ring-2 ring-green-400/50" : "bg-[#C99500] text-[#2E1503] hover:bg-[#B84A28] hover:text-[#F7EDD4]"}`}
+            className={`w-full gap-2 text-base h-12 transition-all ${readyForNext && lastWord ? "bg-green-600 hover:bg-green-500 text-white ring-2 ring-green-400/50" : "bg-[#c28e2b] text-[#14321f] hover:bg-[#bf5a33] hover:text-[#f6f1e2]"}`}
           >
             <Megaphone className="h-5 w-5" />
             {allCalled ? "All words called!" : calling ? "Calling…" : "Call Next Word"}
@@ -519,7 +519,7 @@ function TriviaHostPanel() {
         </div>
         {!session && (
           <Button onClick={newSession} disabled={loading || questions.length === 0}
-            className="gap-2 bg-[#C99500] text-[#2E1503] hover:bg-[#B84A28] hover:text-[#F7EDD4]">
+            className="gap-2 bg-[#c28e2b] text-[#14321f] hover:bg-[#bf5a33] hover:text-[#f6f1e2]">
             <Play className="h-4 w-4" /> Start Game
           </Button>
         )}
@@ -530,7 +530,7 @@ function TriviaHostPanel() {
           {/* Status bar */}
           <div className="flex items-center justify-between rounded-xl border border-border bg-card px-4 py-3">
             <div className="flex items-center gap-3">
-              <span className={`h-2.5 w-2.5 rounded-full ${session.status === "question" ? "bg-green-500 animate-pulse" : session.status === "reveal" ? "bg-[#C99500]" : session.status === "finished" ? "bg-rose-500" : "bg-zinc-500"}`} />
+              <span className={`h-2.5 w-2.5 rounded-full ${session.status === "question" ? "bg-green-500 animate-pulse" : session.status === "reveal" ? "bg-[#c28e2b]" : session.status === "finished" ? "bg-rose-500" : "bg-zinc-500"}`} />
               <span className="text-sm font-medium capitalize">{session.status}</span>
               {session.status !== "waiting" && session.status !== "finished" && (
                 <span className="text-xs text-muted-foreground">Q{session.current_question + 1}/{session.total_questions}</span>
@@ -546,20 +546,20 @@ function TriviaHostPanel() {
           <div className="flex flex-wrap gap-2">
             {session.status === "question" && (
               <Button onClick={() => doAction("reveal")} disabled={loading}
-                className="gap-2 bg-[#C99500] text-[#2E1503] hover:bg-[#B84A28] hover:text-[#F7EDD4]">
+                className="gap-2 bg-[#c28e2b] text-[#14321f] hover:bg-[#bf5a33] hover:text-[#f6f1e2]">
                 <Eye className="h-4 w-4" /> Reveal Answer
               </Button>
             )}
             {session.status === "reveal" && (
               <Button onClick={() => doAction("next")} disabled={loading}
-                className="gap-2 bg-[#C99500] text-[#2E1503] hover:bg-[#B84A28] hover:text-[#F7EDD4]">
+                className="gap-2 bg-[#c28e2b] text-[#14321f] hover:bg-[#bf5a33] hover:text-[#f6f1e2]">
                 <SkipForward className="h-4 w-4" />
                 {session.current_question + 1 >= session.total_questions ? "Finish Game" : "Next Question"}
               </Button>
             )}
             {session.status === "finished" && (
               <Button onClick={newSession} disabled={loading}
-                className="gap-2 bg-[#C99500] text-[#2E1503] hover:bg-[#B84A28] hover:text-[#F7EDD4]">
+                className="gap-2 bg-[#c28e2b] text-[#14321f] hover:bg-[#bf5a33] hover:text-[#f6f1e2]">
                 <RotateCcw className="h-4 w-4" /> New Game
               </Button>
             )}
@@ -573,10 +573,10 @@ function TriviaHostPanel() {
           {/* Current question */}
           {session.question && session.status !== "waiting" && session.status !== "finished" && (
             <div className="rounded-2xl border border-border bg-card overflow-hidden">
-              <div className="bg-gradient-to-r from-[#3D1204] to-[#2E1503] px-5 py-4">
+              <div className="bg-gradient-to-r from-[#1d4d33] to-[#14321f] px-5 py-4">
                 <div className="flex items-center justify-between">
-                  <span className="text-xs uppercase tracking-widest text-[#A07035]">{session.question.category}</span>
-                  <span className="text-xs text-[#7A5030]">Q{session.current_question + 1} of {session.total_questions}</span>
+                  <span className="text-xs uppercase tracking-widest text-[#b39357]">{session.question.category}</span>
+                  <span className="text-xs text-[#7a6a4a]">Q{session.current_question + 1} of {session.total_questions}</span>
                 </div>
                 <p className="mt-2 text-lg font-semibold text-white leading-snug">{session.question.question}</p>
               </div>
@@ -607,24 +607,24 @@ function TriviaHostPanel() {
             <div className="rounded-2xl border border-border bg-card p-5 space-y-4">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <Users className="h-4 w-4 text-[#C99500]" />
+                  <Users className="h-4 w-4 text-[#c28e2b]" />
                   <h3 className="text-sm font-semibold">Players Joined</h3>
                 </div>
-                <span className="text-2xl font-black text-[#C99500]">{players.length}</span>
+                <span className="text-2xl font-black text-[#c28e2b]">{players.length}</span>
               </div>
               {players.length === 0 ? (
                 <p className="text-sm text-muted-foreground text-center py-4">Waiting for players to join…</p>
               ) : (
                 <div className="flex flex-wrap gap-2">
                   {players.map(p => (
-                    <span key={p.player_name} className="rounded-full border border-[#C99500]/30 bg-[#C99500]/10 px-3 py-1 text-sm font-medium">
+                    <span key={p.player_name} className="rounded-full border border-[#c28e2b]/30 bg-[#c28e2b]/10 px-3 py-1 text-sm font-medium">
                       {p.player_name}
                     </span>
                   ))}
                 </div>
               )}
               <Button onClick={() => doAction("start")} disabled={loading || players.length === 0}
-                className="w-full gap-2 bg-[#C99500] text-[#2E1503] hover:bg-[#B84A28] hover:text-[#F7EDD4] disabled:opacity-40">
+                className="w-full gap-2 bg-[#c28e2b] text-[#14321f] hover:bg-[#bf5a33] hover:text-[#f6f1e2] disabled:opacity-40">
                 <Play className="h-4 w-4" />
                 {players.length === 0 ? "Waiting for players…" : `Start Game · ${players.length} player${players.length !== 1 ? "s" : ""}`}
               </Button>
@@ -635,7 +635,7 @@ function TriviaHostPanel() {
           {(session.status === "reveal" || session.status === "finished") && leaderboard.length > 0 && (
             <div className="rounded-2xl border border-border bg-card p-5">
               <div className="mb-3 flex items-center gap-2">
-                <Trophy className="h-4 w-4 text-[#C99500]" />
+                <Trophy className="h-4 w-4 text-[#c28e2b]" />
                 <h3 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">Leaderboard</h3>
               </div>
               <div className="space-y-2">
@@ -643,7 +643,7 @@ function TriviaHostPanel() {
                   <div key={e.name} className="flex items-center gap-3 rounded-xl bg-muted/40 px-3 py-2.5">
                     <span className="w-6 text-center text-sm font-bold text-muted-foreground">#{i+1}</span>
                     <span className="flex-1 text-sm font-medium">{e.name}</span>
-                    <span className="text-sm font-bold text-[#C99500]">{e.score}</span>
+                    <span className="text-sm font-bold text-[#c28e2b]">{e.score}</span>
                   </div>
                 ))}
               </div>
@@ -661,7 +661,7 @@ function TriviaHostPanel() {
           </div>
           <div className="flex items-center gap-2">
             <button onClick={() => setQuestions(TRIVIA_QUESTIONS)}
-              className="flex items-center gap-1 rounded-lg border border-border px-2.5 py-1 text-xs text-muted-foreground hover:border-[#C99500]/40 hover:text-foreground transition-colors">
+              className="flex items-center gap-1 rounded-lg border border-border px-2.5 py-1 text-xs text-muted-foreground hover:border-[#c28e2b]/40 hover:text-foreground transition-colors">
               <RotateCcw className="h-3 w-3" /> Reset
             </button>
             <button onClick={() => setBankOpen(v => !v)} className="text-muted-foreground">
@@ -688,7 +688,7 @@ function TriviaHostPanel() {
                     <span className="text-[10px] text-muted-foreground/60">{q.category}</span>
                   </div>
                   <button onClick={() => setQuestions(prev => prev.filter((_, idx) => idx !== i))}
-                    className="mt-0.5 shrink-0 text-muted-foreground hover:text-[#B84A28] transition-colors">
+                    className="mt-0.5 shrink-0 text-muted-foreground hover:text-[#bf5a33] transition-colors">
                     <X className="h-3.5 w-3.5" />
                   </button>
                 </div>
@@ -696,7 +696,7 @@ function TriviaHostPanel() {
             </div>
 
             <button onClick={() => setAddOpen(v => !v)}
-              className="flex w-full items-center justify-center gap-1.5 rounded-xl border border-dashed border-border py-2.5 text-sm text-muted-foreground hover:border-[#C99500]/40 hover:text-foreground transition-colors">
+              className="flex w-full items-center justify-center gap-1.5 rounded-xl border border-dashed border-border py-2.5 text-sm text-muted-foreground hover:border-[#c28e2b]/40 hover:text-foreground transition-colors">
               <Plus className="h-4 w-4" /> Add Question
             </button>
 
@@ -704,14 +704,14 @@ function TriviaHostPanel() {
               <div className="rounded-xl border border-border bg-background p-4 space-y-3">
                 <input type="text" placeholder="Question text…" value={newQ.question}
                   onChange={e => setNewQ(v => ({ ...v, question: e.target.value }))}
-                  className="h-9 w-full rounded-lg border border-border bg-card px-3 text-sm focus:border-[#C99500]/60 focus:outline-none focus:ring-2 focus:ring-[#C99500]/20 transition-colors" />
+                  className="h-9 w-full rounded-lg border border-border bg-card px-3 text-sm focus:border-[#c28e2b]/60 focus:outline-none focus:ring-2 focus:ring-[#c28e2b]/20 transition-colors" />
                 <div className="grid grid-cols-2 gap-2">
                   {OPTION_LABELS.map((label, i) => (
                     <div key={label} className="flex items-center gap-1.5">
                       <span className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-xs font-bold text-white ${OPTION_BG[i]}`}>{label}</span>
                       <input type="text" placeholder={`Option ${label}…`} value={newQ.options[i]}
                         onChange={e => { const o = [...newQ.options] as [string,string,string,string]; o[i] = e.target.value; setNewQ(v => ({ ...v, options: o })); }}
-                        className="h-8 flex-1 rounded-lg border border-border bg-card px-2 text-sm focus:border-[#C99500]/60 focus:outline-none focus:ring-1 focus:ring-[#C99500]/20 transition-colors" />
+                        className="h-8 flex-1 rounded-lg border border-border bg-card px-2 text-sm focus:border-[#c28e2b]/60 focus:outline-none focus:ring-1 focus:ring-[#c28e2b]/20 transition-colors" />
                     </div>
                   ))}
                 </div>
@@ -725,11 +725,11 @@ function TriviaHostPanel() {
                   </div>
                   <input type="text" placeholder="Category…" value={newQ.category}
                     onChange={e => setNewQ(v => ({ ...v, category: e.target.value }))}
-                    className="h-8 flex-1 rounded-lg border border-border bg-card px-2 text-sm focus:border-[#C99500]/60 focus:outline-none focus:ring-1 focus:ring-[#C99500]/20 transition-colors" />
+                    className="h-8 flex-1 rounded-lg border border-border bg-card px-2 text-sm focus:border-[#c28e2b]/60 focus:outline-none focus:ring-1 focus:ring-[#c28e2b]/20 transition-colors" />
                 </div>
                 <div className="flex gap-2">
                   <Button onClick={addQuestion} size="sm"
-                    className="gap-1.5 bg-[#C99500] text-[#2E1503] hover:bg-[#B84A28] hover:text-[#F7EDD4]">
+                    className="gap-1.5 bg-[#c28e2b] text-[#14321f] hover:bg-[#bf5a33] hover:text-[#f6f1e2]">
                     <Plus className="h-3.5 w-3.5" /> Add
                   </Button>
                   <Button variant="outline" size="sm" onClick={() => { setAddOpen(false); setNewQ({ ...BLANK_Q }); }}>Cancel</Button>
