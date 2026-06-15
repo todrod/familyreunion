@@ -20,7 +20,7 @@ export default function LoginPage() {
       body: JSON.stringify({ password: pw }),
     });
     if (res.ok) {
-      router.replace("/home");
+      router.replace("/planning");
       return true;
     }
     return false;
