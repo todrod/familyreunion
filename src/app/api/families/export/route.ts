@@ -1,11 +1,13 @@
 import { NextResponse } from "next/server";
 import pool from "@/lib/db";
 import { verifySession } from "@/lib/auth";
+import { ensureFamiliesSchema } from "@/lib/families";
 
 export async function GET() {
   if (!await verifySession()) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
+  await ensureFamiliesSchema();
 
   const [rows] = await pool.query("SELECT * FROM families ORDER BY family_name ASC") as [Record<string, unknown>[], unknown];
 

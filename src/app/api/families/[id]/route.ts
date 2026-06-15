@@ -1,11 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
 import pool from "@/lib/db";
 import { verifySession } from "@/lib/auth";
+import { ensureFamiliesSchema } from "@/lib/families";
 
 export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   if (!await verifySession()) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
+  await ensureFamiliesSchema();
 
   const { id } = await params;
   const body = await req.json();
