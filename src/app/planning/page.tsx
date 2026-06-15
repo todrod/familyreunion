@@ -106,43 +106,6 @@ function Select({ value, onChange, options, className = "" }: {
   );
 }
 
-/* ─── Attendee chip input ────────────────────────────────────────── */
-function AttendeeInput({ chips, onAdd, onRemove, inputVal, onInputChange }: {
-  chips: string[]; onAdd: (n: string) => void; onRemove: (n: string) => void;
-  inputVal: string; onInputChange: (v: string) => void;
-}) {
-  function handleKey(e: React.KeyboardEvent<HTMLInputElement>) {
-    if (e.key === "Enter" || e.key === ",") {
-      e.preventDefault();
-      const name = inputVal.trim().replace(/,$/, "");
-      if (name && !chips.includes(name)) onAdd(name);
-    }
-    if (e.key === "Backspace" && !inputVal && chips.length) onRemove(chips[chips.length - 1]);
-  }
-  function handleBlur() {
-    const name = inputVal.trim().replace(/,$/, "");
-    if (name && !chips.includes(name)) onAdd(name);
-  }
-  return (
-    <div className="flex min-h-[38px] flex-wrap gap-1.5 rounded-lg border border-border bg-background px-2.5 py-2 focus-within:border-[#c28e2b]/60 focus-within:ring-2 focus-within:ring-[#c28e2b]/20 transition-colors">
-      {chips.map((chip) => (
-        <span key={chip} className="inline-flex items-center gap-1 rounded-md bg-[#c28e2b]/15 px-2 py-0.5 text-xs font-medium text-[#c28e2b]">
-          {chip}
-          <button type="button" onClick={() => onRemove(chip)} className="opacity-60 hover:opacity-100"><X className="h-3 w-3" /></button>
-        </span>
-      ))}
-      <input
-        value={inputVal}
-        onChange={(e) => onInputChange(e.target.value)}
-        onKeyDown={handleKey}
-        onBlur={handleBlur}
-        placeholder={chips.length === 0 ? "Type a name, press Enter or comma…" : "Add another…"}
-        className="min-w-[140px] flex-1 bg-transparent text-sm text-foreground outline-none placeholder:text-muted-foreground"
-      />
-    </div>
-  );
-}
-
 /* ─── Countdown ──────────────────────────────────────────────────── */
 function Countdown() {
   const [timeLeft, setTimeLeft] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
@@ -192,8 +155,6 @@ export default function PlanningPage() {
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
   const [editingId, setEditingId] = useState<number | null>(null);
   const [editForm, setEditForm] = useState<Partial<Family>>({});
-  const [editChips, setEditChips] = useState<string[]>([]);
-  const [editChipInput, setEditChipInput] = useState("");
   const [myId, setMyId] = useState<number | null>(null);
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
@@ -255,34 +216,36 @@ export default function PlanningPage() {
     if (!form.family_name) return;
     setSubmitting(true);
 
-    if (myId) {
-      // Update existing entry
-      const res = await fetch(`/api/families/${myId}`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      });
-      setSubmitting(false);
-      if (res.ok) {
+    try {
+      if (myId) {
+        // Update existing entry
+        const res = await fetch(`/api/families/${myId}`, {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        });
+        if (!res.ok) throw new Error(`Update failed (${res.status})`);
         const updated = await res.json();
         setFamilies((prev) => prev.map((f) => (f.id === myId ? updated : f)));
         toast.success("Your info has been updated!");
-      }
-    } else {
-      // New entry
-      const res = await fetch("/api/families", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      });
-      setSubmitting(false);
-      if (res.ok) {
+      } else {
+        // New entry
+        const res = await fetch("/api/families", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        });
+        if (!res.ok) throw new Error(`Add failed (${res.status})`);
         const newFamily = await res.json();
         setFamilies((prev) => [...prev, newFamily]);
         localStorage.setItem("reunion_family_id", String(newFamily.id));
         setMyId(newFamily.id);
         toast.success(`${form.family_name} added!`, { description: "You're on the list. See you there!" });
       }
+    } catch {
+      toast.error("Something went wrong saving your info — please try again.");
+    } finally {
+      setSubmitting(false);
     }
   }
 
@@ -301,20 +264,22 @@ export default function PlanningPage() {
   function startEdit(family: Family) {
     setEditingId(family.id);
     setEditForm({ ...family });
-    setEditChips([]);
-    setEditChipInput("");
   }
 
   async function saveEdit(id: number) {
-    const res = await fetch(`/api/families/${id}`, {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ ...editForm, attendees: editChips.join(", ") }),
-    });
-    if (res.ok) {
-      setFamilies((prev) => prev.map((f) => (f.id === id ? { ...f, ...(editForm as Family), attendees: editChips.join(", ") } : f)));
+    try {
+      const res = await fetch(`/api/families/${id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(editForm),
+      });
+      if (!res.ok) throw new Error(`Save failed (${res.status})`);
+      const updated = await res.json();
+      setFamilies((prev) => prev.map((f) => (f.id === id ? updated : f)));
       setEditingId(null);
       toast.success("Changes saved.");
+    } catch {
+      toast.error("Couldn't save your changes — please try again.");
     }
   }
 
@@ -507,7 +472,7 @@ export default function PlanningPage() {
                       <input type="checkbox" checked={!!editForm.has_pets} onChange={(e) => setEditForm((p) => ({ ...p, has_pets: e.target.checked ? 1 : 0 }))} className="h-4 w-4 accent-[#c28e2b]" />
                       Bringing pets
                     </label>
-                    <div className="space-y-1"><Label className="text-xs">Attendees</Label><AttendeeInput chips={editChips} onAdd={(n) => { if (!editChips.includes(n)) setEditChips((p) => [...p, n]); setEditChipInput(""); }} onRemove={(n) => setEditChips((p) => p.filter((c) => c !== n))} inputVal={editChipInput} onInputChange={setEditChipInput} /></div>
+                    <div className="space-y-1"><Label className="text-xs">How Many in Group</Label><Stepper value={parseInt(editForm.attendees || "1") || 1} onChange={(n) => setEditForm((p) => ({ ...p, attendees: String(n) }))} max={30} /></div>
                     <Textarea value={editForm.notes || ""} onChange={(e) => setEditForm((p) => ({ ...p, notes: e.target.value }))} placeholder="Notes…" rows={2} className="text-sm" />
                     <div className="flex gap-2">
                       <Button size="sm" className="bg-[#c28e2b] text-[#14321f] hover:bg-[#bf5a33] hover:text-white" onClick={() => saveEdit(family.id)}><Check className="mr-1 h-3.5 w-3.5" />Save</Button>
